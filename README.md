@@ -1,7 +1,7 @@
 # lu-simulator : location uncertainty simulator
 
 ## Credits: 
-Developed by Jean-Michel Brankart, IR CNRS @IGE in Grenoble, France.
+Developed by Jean-Michel Brankart, IR CNRS @IGE in Grenoble, France in collaboration with S. Leroux, Datlas, Grenoble.
 
 ## About
 A tool to simulate horizontal location uncertainty in 2D or 3D geophysical fields.
