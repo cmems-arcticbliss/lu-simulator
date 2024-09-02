@@ -127,11 +127,11 @@ if __name__ == "__main__":
     print('Applying perturbation for member: ',imember)
 
     # Get perturbation of grid locations
-    dx, dy = ncio.read_perturbation(args.input_file,imember)
+    dxf, dyf = ncio.read_perturbation(args.input_file,imember)
 
     # Scale perturbation with standard deviation
-    dx = dx * args.perturbation_std
-    dy = dy * args.perturbation_std
+    dxf = dxf * args.perturbation_std
+    dyf = dyf * args.perturbation_std
 
     # Define output file name with ensemble member index as a prefix
     output_file=f'{imember+1:0>3}' + args.output_file
@@ -156,8 +156,15 @@ if __name__ == "__main__":
       # Read and apply damping factor for this variable if any
       if args.damping_factor is not None:
         damping_factor = ncio.read_variable(args.damping_factor,varname)
-        dx = dx * damping_factor
-        dy = dy * damping_factor
+        if damping_factor.ndim == 2:
+          dx = dxf * damping_factor
+          dy = dyf * damping_factor
+        if damping_factor.ndim == 3:
+          dx = dxf * damping_factor[0,:,:]
+          dy = dyf * damping_factor[0,:,:]
+        if damping_factor.ndim == 4:
+          dx = dxf * damping_factor[0,0,:,:]
+          dy = dyf * damping_factor[0,0,:,:]
 
       # Apply perturbation to this variable
       perturbed_field = apply_perturbation(reference_field,dx,dy,grid_type=variable['grid_type'])

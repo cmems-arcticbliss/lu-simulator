@@ -74,8 +74,10 @@ def rotate_vector_2d(u,v,theta_u,theta_v,grid_type='T'):
   """
 
   # Define working arrays
-  ru = np.zeros_like(u)
-  rv = np.zeros_like(v)
+  u_v = np.zeros_like(u)
+  v_u = np.zeros_like(v)
+  ru  = np.zeros_like(u)
+  rv  = np.zeros_like(v)
 
   if grid_type == 'UV' :
     # Compute u at V points

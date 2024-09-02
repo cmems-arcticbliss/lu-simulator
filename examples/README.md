@@ -28,7 +28,7 @@ Plot reference and perturbed field with
 python plot_test_case.py -i input_file
 ```
 
-This should provide figures comparable to those provided as an illustration.
+This should provide figures comparable to those provided here as an illustration.
 
 Reference field:
 
