@@ -22,10 +22,19 @@ python apply_perturbations.py -m 2 -std 3. -grid test.nc -i test_perturbation.nc
 ```
 
 
-Plot reference and pertrubed field with
+Plot reference and perturbed field with
 
 ```
 python plot_test_case.py -i input_file
 ```
 
 This should provide figures comparable to those provided as an illustration.
+
+Reference field:
+![plot](test.nc.png)
+
+Perturbed field, member 1:
+![plot](001test_perturbed.nc.png)
+
+Perturbed field, member 2:
+![plot](002test_perturbed.nc.png)
