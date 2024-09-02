@@ -31,9 +31,11 @@ python plot_test_case.py -i input_file
 This should provide figures comparable to those provided as an illustration.
 
 Reference field:
+
 ![plot](test.nc.png)
 
 Perturbed field, member 1:
+
 ![plot](001test_perturbed.nc.png)
 
 Perturbed field, member 2:
