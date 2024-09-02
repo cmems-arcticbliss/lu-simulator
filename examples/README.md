@@ -1,4 +1,4 @@
-## lu-simulator : examples
+# lu-simulator : examples
 
 #### Prepare the data for the example with:
 
