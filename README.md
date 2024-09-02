@@ -1,9 +1,9 @@
 # lu-simulator : location uncertainty simulator
 
-## Credits: 
+### Credits: 
 Developed by Jean-Michel Brankart, IR CNRS @IGE in Grenoble, France in collaboration with S. Leroux, Datlas, Grenoble.
 
-## About
+### About
 A tool to simulate horizontal location uncertainty in 2D or 3D geophysical fields.
 
 This is done by a random perturbation of the coordinate system,
@@ -28,6 +28,8 @@ this method has the originality of producing non-Gaussian perturbations
 of the geoohysical fields through a Gaussian perturbation of the coordinates.
 This can be especially useful in applications where an accurate location
 of structures is important.
+
+See the example directory for an illustration.
 
 ### Requirements
 
@@ -136,6 +138,15 @@ use the options:
 With these options, the location of the grid points are read from the grid file.
 The unit of length scales to provide (`correlation_length_scale` and `perturbation_std`)
 is then the same unit as the coordinates in the grid file.
+
+In all case, the spectrum of the perturbations can be modified by the option:
+
+```
+  -spct spectrum_type
+```
+
+where `spectrum_type` can be either 'gaussian', 'k-2' or 'k-4'.
+It is easy to add a new option in the code.
 
 ### Account for a land mask
 
