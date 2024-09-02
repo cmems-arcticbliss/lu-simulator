@@ -36,7 +36,11 @@ def rotate_vector(u,v,dx,dy):
 
   # Rotate vector for every 2d slice
   if ndim == 2 :
+    #u2d = u[:,:]
+    #v2d = v[:,:]
     rotate_vector_2d(u,v,theta_u,theta_v)
+    #u[:,:] = u2d
+    #v[:,:] = v2d
   elif ndim == 3 :
     for k in range(u.shape[0]):
       u2d = u[k,:,:]
@@ -80,8 +84,8 @@ def rotate_vector_2d(u,v,theta_u,theta_v):
   v_u[0,:] = v[0,:] ; v_u[:,0] = v[:,0]
 
   # Apply rotation angle to input vector
-  u =   u   * np.cos(theta_u) +  v_u * np.sin(theta_u)
-  v = - u_v * np.sin(theta_v) +  v   * np.cos(theta_v)
+  u[:] =   u   * np.cos(theta_u) +  v_u * np.sin(theta_u)
+  v[:] = - u_v * np.sin(theta_v) +  v   * np.cos(theta_v)
 
 def rotate_tensor(txx,txy,tyy,dx,dy,grid_type='T'):
   """
@@ -106,29 +110,32 @@ def rotate_tensor(txx,txy,tyy,dx,dy,grid_type='T'):
   # Rotate tensor for every 2d slice
   if ndim == 2 :
     rtxx, rtxy, rtyy = rotate_tensor_2d(txx,txy,tyy,theta)
+    txx[:,:] = rtxx2d
+    txy[:,:] = rtxy2d
+    tyy[:,:] = rtyy2d
   elif ndim == 3 :
     for k in range(txx.shape[0]):
       txx2d = txx[k,:,:]
       txy2d = txy[k,:,:]
       tyy2d = tyy[k,:,:]
-      rtxx, rtxy, rtyy = rotate_tensor_2d(txx2d,txy2d,tyy2d,theta)
-      rtxx[k,:,:] = txx2d
-      rtxy[k,:,:] = txy2d
-      rtyy[k,:,:] = tyy2d
+      rtxx2d, rtxy2d, rtyy2d = rotate_tensor_2d(txx2d,txy2d,tyy2d,theta)
+      txx[k,:,:] = rtxx2d
+      txy[k,:,:] = rtxy2d
+      tyy[k,:,:] = rtyy2d
   elif ndim == 4 :
     for l in range(txx.shape[0]):
       for k in range(txx.shape[1]):
         txx2d = txx[l,k,:,:]
         txy2d = txy[l,k,:,:]
         tyy2d = tyy[l,k,:,:]
-        rtxx, rtxy, rtyy = rotate_tensor_2d(txx2d,txy2d,tyy2d,theta)
-        rtxx2d = txx[l,k,:,:]
-        rtxy2d = txy[l,k,:,:]
-        rtyy2d = tyy[l,k,:,:]
+        rtxx2d, rtxy2d, rtyy2d = rotate_tensor_2d(txx2d,txy2d,tyy2d,theta)
+        txx[l,k,:,:] = rtxx2d
+        txy[l,k,:,:] = rtxy2d
+        tyy[l,k,:,:] = rtyy2d
   else:
     raise ValueError("Bad variable dimension")
 
-  return rtxx, rtxy, rtyy
+  return
 
 def rotate_tensor_2d(txx,txy,tyy,theta):
   """

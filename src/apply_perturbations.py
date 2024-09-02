@@ -188,19 +188,19 @@ if __name__ == "__main__":
           component = 0
           # Rotate tensor once all components have been perturbed
           # (all tensor components are assumed on the same grid)
-          rtxx, rtxy, rtyy = app_rot.rotate_tensor(txx,txy,tyy,dx,dy,grid_type=variable['grid_type'])
+          app_rot.rotate_tensor(txx,txy,tyy,dx,dy,grid_type=variable['grid_type'])
           # Read and apply mask for this variable if any
           if args.mask_file is not None:
             varmask = ncio.read_variable(args.mask_file,txx_name)
-            rtxx[np.where(varmask==ncf.mask_spval)] = ncf.output_spval
+            txx[np.where(varmask==ncf.mask_spval)] = ncf.output_spval
             varmask = ncio.read_variable(args.mask_file,txy_name)
-            rtxy[np.where(varmask==ncf.mask_spval)] = ncf.output_spval
+            txy[np.where(varmask==ncf.mask_spval)] = ncf.output_spval
             varmask = ncio.read_variable(args.mask_file,tyy_name)
-            rtyy[np.where(varmask==ncf.mask_spval)] = ncf.output_spval
+            tyy[np.where(varmask==ncf.mask_spval)] = ncf.output_spval
           # Save tensor components to file
-          ncio.write_variable(rtxx,txx_name)
-          ncio.write_variable(rtxy,txy_name)
-          ncio.write_variable(rtyy,tyy_name)
+          ncio.write_variable(txx,txx_name)
+          ncio.write_variable(txy,txy_name)
+          ncio.write_variable(tyy,tyy_name)
       else:
         raise ValueError("Bad variable tensor type")
 
