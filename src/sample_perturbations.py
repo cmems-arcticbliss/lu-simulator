@@ -14,6 +14,8 @@ import numpy as np
 import pyensdam as edam
 
 # Set default values of module attributes
+spectrum_type='gaussian'  # Type of power spectrum (available options: 'gaussian', 'k-2', 'k-4')
+
 lmin=0       # minimum degree of the spherical harmonics used in the computations
 lmax=60      # maximum degree of the spherical harmonics used in the computations
 lcut=12      # degree of the spherical harmonics defining the length scale of the perturbation spectrum 
@@ -28,16 +30,31 @@ def power_spectrum(l,m):
   global lmax, lcut
 
   # Power spectrum
-  power = 1. / ( 1. + l*l/(lcut*lcut) )
+  power = power_spectrum_function(l/lcut)
 
   # Normalize the spectrum
   norm = 0.
   for ll in range(0,lmax+1):
-    norm = norm + 1. / ( 1. + ll*ll/(lcut*lcut) )
+    norm = norm + power_spectrum_function(ll/lcut)
   power = power / norm
 
   # Scale to account for the multiplicity of each degree
   power = power / ( 1. + 2. * l )
+
+  return power
+
+# Power spectrum funtion as a function of the degree l of the spherical harmonics
+def power_spectrum_function(l):
+  global spectrum_type
+
+  if spectrum_type == 'gaussian' : 
+    power = np.exp( l*l )
+  elif spectrum_type == 'k-2' : 
+    power = 1. / ( 1. + l*l )
+  elif spectrum_type == 'k-4' : 
+    power = 1. / ( 1. + l*l*l*l )
+  else:
+   raise ValueError("Bad type of power spectrum")
 
   return power
 
@@ -76,7 +93,8 @@ def sample_perturbation_cartesian(lon1d,lat1d,length_scale):
   # Set Gaussian spectrum with given length scale
   dk = 4 / ( nwnbr * length_scale )
   spct_freq = np.arange(dk, dk + nwnbr * dk, dk, dtype=np.double)
-  spct_power = np.exp( - spct_freq * spct_freq )
+  #spct_power = np.exp( - spct_freq * spct_freq )
+  spct_power = power_spectrum_function( spct_freq )
 
   # Initialize definition of the spectrum
   edam.random.field2d_init(spct_freq,spct_power)
@@ -103,7 +121,8 @@ def sample_perturbation_grid(grid_shape,length_scale):
   # Set Gaussian spectrum with given length scale
   dk = 4 / ( nwnbr * length_scale )
   spct_freq = np.arange(dk, dk + nwnbr * dk, dk, dtype=np.double)
-  spct_power = np.exp( - spct_freq * spct_freq )
+  #spct_power = np.exp( - spct_freq * spct_freq )
+  spct_power = power_spectrum_function( spct_freq )
 
   # Initialize definition of the spectrum
   edam.random.field2d_init(spct_freq,spct_power)
@@ -125,14 +144,15 @@ if __name__ == "__main__":
 
   # Parse command-line arguments
   parser = argparse.ArgumentParser(prog='sample_perturbations',description='Sample perturbations of the coordinates')
-  parser.add_argument('-m',    '--sample_size',  type=int,   required=True,  help='sample size')
-  parser.add_argument('-l',    '--length_scale', type=float, required=True,  help='correlation length scale')
-  parser.add_argument('-grid', '--grid_file',    type=str,   required=True,  help='name of grid file')
-  parser.add_argument('-o',    '--output_file',  type=str,   required=True,  help='name of output file with perturbations')
-  parser.add_argument('-c',    '--cartesian',    action='store_true', required=False, help='use cartesian coordinates')
-  parser.add_argument('-s',    '--spherical',    action='store_true', required=False, help='use spherical coordinates')
-  parser.add_argument('-seed', '--seed_index',   type=int,   required=False, help='index of seed to use in the random number generator')
-  parser.add_argument('-N',    '--nproc',        type=int,   required=False, help='number of processors to use with MPI')
+  parser.add_argument('-m',    '--sample_size',   type=int,   required=True,  help='sample size')
+  parser.add_argument('-l',    '--length_scale',  type=float, required=True,  help='correlation length scale')
+  parser.add_argument('-grid', '--grid_file',     type=str,   required=True,  help='name of grid file')
+  parser.add_argument('-o',    '--output_file',   type=str,   required=True,  help='name of output file with perturbations')
+  parser.add_argument('-c',    '--cartesian',     action='store_true', required=False, help='use cartesian coordinates')
+  parser.add_argument('-s',    '--spherical',     action='store_true', required=False, help='use spherical coordinates')
+  parser.add_argument('-spct', '--spectrum_type', type=str,   required=False, help='type of spectrum (default=gaussian)')
+  parser.add_argument('-seed', '--seed_index',    type=int,   required=False, help='index of seed to use in the random number generator')
+  parser.add_argument('-N',    '--nproc',         type=int,   required=False, help='number of processors to use with MPI')
   args = parser.parse_args()
 
   # MPI parallelization settings
@@ -151,6 +171,10 @@ if __name__ == "__main__":
     mpirank=0
     grid_file=args.grid_file
     output_file=args.output_file
+
+  # Modify module default parameters according to optional arguments
+  if args.spectrum_type is not None:
+    spectrum_type =args.spectrum_type
 
   # Seed random number generator
   # (reproducible for a given seed index, default=0)
