@@ -12,7 +12,7 @@ import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 import util_grid
 
-def rotate_vector(u,v,dx,dy):
+def rotate_vector(u,v,dx,dy,grid_type='T'):
   """
   Rotate vectors to follow the perturbation of the coordinates
 
@@ -28,38 +28,40 @@ def rotate_vector(u,v,dx,dy):
   # Dimension of input variable
   ndim = u.ndim
 
-  # Calculate the angle of rotation at U points
-  theta_u = compute_rotation_angle(dx,dy,grid_type='U')
-
-  # Calculate the angle of rotation at V points
-  theta_v = compute_rotation_angle(dx,dy,grid_type='V')
+  if grid_type == 'UV' :
+    # Calculate the angle of rotation at U and V points
+    theta_u = compute_rotation_angle(dx,dy,grid_type='U')
+    theta_v = compute_rotation_angle(dx,dy,grid_type='V')
+  else:
+    theta_u = compute_rotation_angle(dx,dy,grid_type)
+    theta_v = compute_rotation_angle(dx,dy,grid_type)
 
   # Rotate vector for every 2d slice
   if ndim == 2 :
-    #u2d = u[:,:]
-    #v2d = v[:,:]
-    rotate_vector_2d(u,v,theta_u,theta_v)
-    #u[:,:] = u2d
-    #v[:,:] = v2d
+    u2d = u[:,:]
+    v2d = v[:,:]
+    ru2d, rv2d = rotate_vector_2d(u2d,v2d,theta_u,theta_v,grid_type)
+    u[:,:] = ru2d
+    v[:,:] = rv2d
   elif ndim == 3 :
     for k in range(u.shape[0]):
       u2d = u[k,:,:]
       v2d = v[k,:,:]
-      rotate_vector_2d(u2d,v2d,theta_u,theta_v)
-      u[k,:,:] = u2d
-      v[k,:,:] = v2d
+      ru2d, rv2d = rotate_vector_2d(u2d,v2d,theta_u,theta_v,grid_type)
+      u[k,:,:] = ru2d
+      v[k,:,:] = rv2d
   elif ndim == 4 :
     for l in range(u.shape[0]):
       for k in range(u.shape[1]):
         u2d = u[l,k,:,:]
         v2d = v[l,k,:,:]
-        rotate_vector_2d(u2d,v2d,theta_u,theta_v)
-        u[l,k,:,:] = u2d
-        v[l,k,:,:] = v2d
+        ru2d, rv2d = rotate_vector_2d(u2d,v2d,theta_u,theta_v,grid_type)
+        u[l,k,:,:] = ru2d
+        v[l,k,:,:] = rv2d
   else:
     raise ValueError("Bad variable dimension")
 
-def rotate_vector_2d(u,v,theta_u,theta_v):
+def rotate_vector_2d(u,v,theta_u,theta_v,grid_type='T'):
   """
   Rotate vectors to follow the perturbation of the coordinates
 
@@ -68,24 +70,29 @@ def rotate_vector_2d(u,v,theta_u,theta_v):
   theta_u, theta_v : angle of rotation at U and V points
 
   Returns:
-  u,v are modified in place
+  ru,rv : transformed components of vector
   """
 
   # Define working arrays
-  u_v = np.zeros_like(u)
-  v_u = np.zeros_like(v)
+  ru = np.zeros_like(u)
+  rv = np.zeros_like(v)
 
-  # Compute u at V points
-  u_v[1:,1:] = ( u[0:-1, 0:-1] + u[1:, 0:-1] + u[0:-1, 1:] + u[1:, 1:] ) / 4
-  u_v[0,:] = u[0,:] ; u_v[:,0] = u[:,0]
-
-  # Compute v at U points
-  v_u[1:,1:] = ( v[0:-1, 0:-1] + v[1:, 0:-1] + v[0:-1, 1:] + v[1:, 1:] ) / 4
-  v_u[0,:] = v[0,:] ; v_u[:,0] = v[:,0]
+  if grid_type == 'UV' :
+    # Compute u at V points
+    u_v[1:,1:] = ( u[0:-1, 0:-1] + u[1:, 0:-1] + u[0:-1, 1:] + u[1:, 1:] ) / 4
+    u_v[0,:] = u[0,:] ; u_v[:,0] = u[:,0]
+    # Compute v at U points
+    v_u[1:,1:] = ( v[0:-1, 0:-1] + v[1:, 0:-1] + v[0:-1, 1:] + v[1:, 1:] ) / 4
+    v_u[0,:] = v[0,:] ; v_u[:,0] = v[:,0]
+  else:
+    u_v = u
+    v_u = v
 
   # Apply rotation angle to input vector
-  u[:] =   u   * np.cos(theta_u) +  v_u * np.sin(theta_u)
-  v[:] = - u_v * np.sin(theta_v) +  v   * np.cos(theta_v)
+  ru =   u   * np.cos(theta_u) +  v_u * np.sin(theta_u)
+  rv = - u_v * np.sin(theta_v) +  v   * np.cos(theta_v)
+
+  return ru, rv
 
 def rotate_tensor(txx,txy,tyy,dx,dy,grid_type='T'):
   """
@@ -188,10 +195,11 @@ def compute_rotation_angle(dx,dy,grid_type='T'):
   # We remove translation by computing difference of dx and dy
   # (dx and dy are always assumed to correspond to grid T)
   ilo = ish - 1 ; jlo = jsh - 1
-  dx_x = ( dx[ish:,jlo:-1] - dx[:-ish,jlo:-1] ) / ish
-  dx_y = ( dx[ilo:-1,jsh:] - dx[ilo:-1,:-jsh] ) / jsh
-  dy_x = ( dy[ish:,jlo:-1] - dy[:-ish,jlo:-1] ) / ish
-  dy_y = ( dy[ilo:-1,jsh:] - dy[ilo:-1,:-jsh] ) / jsh
+  dy_x = np.zeros_like(dx)
+  dx_x = ( dx[jlo:-1,ish:] - dx[jlo:-1,:-ish] ) / ish
+  dx_y = ( dx[jsh:,ilo:-1] - dx[:-jsh,ilo:-1] ) / jsh
+  dy_x = ( dy[jlo:-1,ish:] - dy[jlo:-1,:-ish] ) / ish
+  dy_y = ( dy[jsh:,ilo:-1] - dy[:-jsh,ilo:-1] ) / jsh
 
   # The transformation of the coordinates is then T = I + dx'/dx
   # where T is the combination of a rotation and deformation: T = R D.
@@ -200,7 +208,7 @@ def compute_rotation_angle(dx,dy,grid_type='T'):
   trace = ( dx_x + dy_y ) / 2
   asymm = ( dy_x - dx_y ) / 2
 
-  theta[ilo:-1,jlo:-1] = np.arctan2( asymm, 1 + trace )
+  theta[jlo:-1,ilo:-1] = np.arctan2( asymm, 1 + trace )
 
   # Extrapolate to boundaries
   theta[:ilo,:] = theta[ilo,:][np.newaxis, :]

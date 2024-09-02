@@ -12,6 +12,8 @@ from scipy.interpolate import RegularGridInterpolator
 import apply_rotations as app_rot
 import util_grid
 
+no_extrapolation=False  # No extrapolation beyond grid limits
+
 def apply_perturbation(reference,dx,dy,grid_type='T'):
   """
   Apply a given perturbation to a given variable
@@ -25,6 +27,7 @@ def apply_perturbation(reference,dx,dy,grid_type='T'):
   Returns:
   perturbed: perturbed variable
   """
+  global no_extrapolation
 
   # Dimension of input variable
   ndim = reference.ndim
@@ -51,18 +54,27 @@ def apply_perturbation(reference,dx,dy,grid_type='T'):
   # Interpolate at new locations separately for every 2d slice of the array
   if ndim == 2 :
     slice2d = reference[:,:]
-    interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+    if no_extrapolation:
+      interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False)
+    else:
+      interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
     perturbed = interpolator(points)
   elif ndim == 3 :
     for k in range(reference.shape[0]):
       slice2d = reference[k,:,:]
-      interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+      if no_extrapolation:
+        interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+      else:
+        interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
       perturbed[k,:,:] = interpolator(points)
   elif ndim == 4 :
     for l in range(reference.shape[0]):
       for k in range(reference.shape[1]):
         slice2d = reference[l,k,:,:]
-        interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+        if no_extrapolation:
+          interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+        else:
+          interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
         perturbed[l,k,:,:] = interpolator(points)
   else:
     raise ValueError("Bad variable dimension")
@@ -161,13 +173,22 @@ if __name__ == "__main__":
       elif variable['tensor_type'] == 'vector' :
         component = component + 1
         if component == 1 :
-          u_name = variable['name'] ; u = perturbed_field
+          u_name = variable['name'] ; u = perturbed_field ; u_type = variable['grid_type']
         else:
-          v_name = variable['name'] ; v = perturbed_field
+          v_name = variable['name'] ; v = perturbed_field ; v_type = variable['grid_type']
           component = 0
           # Rotate vector once all components have been perturbed
           # (vector components are assumed on grid U and V)
-          app_rot.rotate_vector(u,v,dx,dy)
+          if u_type == v_type:
+            # vector components are on the same grid
+            app_rot.rotate_vector(u,v,dx,dy,grid_type=u_type)
+          else:
+            # vector components are assumed on grid U and V
+            if u_type != 'U':
+              raise ValueError("Bad grid type of vector components")
+            if v_type != 'V':
+              raise ValueError("Bad grid type of vector components")
+            app_rot.rotate_vector(u,v,dx,dy,grid_type='UV')
           # Read and apply mask for this variable if any
           if args.mask_file is not None:
             varmask = ncio.read_variable(args.mask_file,u_name)

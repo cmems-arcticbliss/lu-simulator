@@ -32,11 +32,11 @@ def interpolate_from_grid_T(phi,grid_type):
   # Case of up-right staggered grid (like NEMO)
   if stag_type == 'upright' :
     if grid_type == 'U':
-      phi_interp[:-1,:] = (phi[:-1, :] + phi[1:, :]) / 2
-      phi_interp[-1,:] = phi[-1,:]
-    elif grid_type == 'V':
       phi_interp[:,:-1] = (phi[:, :-1] + phi[:, 1:]) / 2
       phi_interp[:,-1] = phi[:,-1]
+    elif grid_type == 'V':
+      phi_interp[:-1,:] = (phi[:-1, :] + phi[1:, :]) / 2
+      phi_interp[-1,:] = phi[-1,:]
     elif grid_type == 'F':
       phi_interp[:-1,:-1] = ( phi[:-1, :-1] + phi[1:, :-1] + phi[:-1, 1:] + phi[1:, 1:] ) / 4
       phi_interp[-1,:] = phi[-1,:]
@@ -46,11 +46,11 @@ def interpolate_from_grid_T(phi,grid_type):
   # Case of down-left staggered grid (like CROCO)
   elif stag_type == 'downleft' :
     if grid_type == 'U':
-      phi_interp[1:,:] = (phi[0:, :] + phi[1:, :]) / 2
-      phi_interp[0,:] = phi[0,:]
-    elif grid_type == 'V':
-      phi_interp[:,1:] = (phi[:, 0:] + phi[:, 1:]) / 2
+      phi_interp[:,1:] = (phi[:,0:] + phi[:,1:]) / 2
       phi_interp[:,0] = phi[:,0]
+    elif grid_type == 'V':
+      phi_interp[1:,:] = (phi[0:,:] + phi[1:,:]) / 2
+      phi_interp[0,:] = phi[0,:]
     elif grid_type == 'F':
       phi_interp[1:,1:] = ( phi[0:, 0:] + phi[1:, 0:] + phi[0:, 1:] + phi[1:, 1:] ) / 4
       phi_interp[0,:] = phi[0,:]
