@@ -9,7 +9,7 @@ Module parameters:
 """
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-import apply_rotations as app_rot
+import util_transformation
 import util_grid
 
 no_extrapolation=False  # No extrapolation beyond grid limits
@@ -165,6 +165,9 @@ if __name__ == "__main__":
         if damping_factor.ndim == 4:
           dx = dxf * damping_factor[0,0,:,:]
           dy = dyf * damping_factor[0,0,:,:]
+      else:
+        dx = dxf
+        dy = dyf
 
       # Apply perturbation to this variable
       perturbed_field = apply_perturbation(reference_field,dx,dy,grid_type=variable['grid_type'])
@@ -188,14 +191,14 @@ if __name__ == "__main__":
           # (vector components are assumed on grid U and V)
           if u_type == v_type:
             # vector components are on the same grid
-            app_rot.rotate_vector(u,v,dx,dy,grid_type=u_type)
+            util_transformation.transform_vector(u,v,dx,dy,grid_type=u_type)
           else:
             # vector components are assumed on grid U and V
             if u_type != 'U':
               raise ValueError("Bad grid type of vector components")
             if v_type != 'V':
               raise ValueError("Bad grid type of vector components")
-            app_rot.rotate_vector(u,v,dx,dy,grid_type='UV')
+            util_transformation.transform_vector(u,v,dx,dy,grid_type='UV')
           # Read and apply mask for this variable if any
           if args.mask_file is not None:
             varmask = ncio.read_variable(args.mask_file,u_name)
@@ -216,7 +219,7 @@ if __name__ == "__main__":
           component = 0
           # Rotate tensor once all components have been perturbed
           # (all tensor components are assumed on the same grid)
-          app_rot.rotate_tensor(txx,txy,tyy,dx,dy,grid_type=variable['grid_type'])
+          util_transformation.transform_tensor(txx,txy,tyy,dx,dy,grid_type=variable['grid_type'])
           # Read and apply mask for this variable if any
           if args.mask_file is not None:
             varmask = ncio.read_variable(args.mask_file,txx_name)

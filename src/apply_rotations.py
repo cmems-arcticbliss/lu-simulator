@@ -9,7 +9,6 @@ Module parameters:
 
 """
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator
 import util_grid
 
 def rotate_vector(u,v,dx,dy,grid_type='T'):
@@ -197,7 +196,6 @@ def compute_rotation_angle(dx,dy,grid_type='T'):
   # We remove translation by computing difference of dx and dy
   # (dx and dy are always assumed to correspond to grid T)
   ilo = ish - 1 ; jlo = jsh - 1
-  dy_x = np.zeros_like(dx)
   dx_x = ( dx[jlo:-1,ish:] - dx[jlo:-1,:-ish] ) / ish
   dx_y = ( dx[jsh:,ilo:-1] - dx[:-jsh,ilo:-1] ) / jsh
   dy_x = ( dy[jlo:-1,ish:] - dy[jlo:-1,:-ish] ) / ish
