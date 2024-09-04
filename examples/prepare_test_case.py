@@ -7,13 +7,20 @@ x = np.linspace(0, 1, grid_size)
 y = np.linspace(0, 1, grid_size)
 x_grid, y_grid = np.meshgrid(x, y)
 
-# Define the scalar function f(x, y) = y - x
+# Define a scalar function f(x, y) = y - x
 f = y_grid - x_grid
-#f = np.floor( 10 *  ( y_grid - x_grid ) ) / 10
-#f = y_grid
 
-# Define the constant vector field u = (1, 1)
+# Define a constant vector field u(x, y) = (1, 1)
 u = np.ones((grid_size, grid_size, 2))  # Last dimension is 2 for the vector components
+
+# Define a constant tensor field t(x, y) = ( [a, c] , [c, b] )
+# (symmetric, positive definite)
+a = 1.2 ; b = 1 ; c = 1
+t = np.zeros((grid_size, grid_size, 2, 2))
+for i in range(grid_size):
+    for j in range(grid_size):
+        t[i,j,:,:] = np.array([[a, c],
+                               [c, b]])
 
 # Create a new NetCDF file
 nc_filename = 'test.nc'
@@ -34,26 +41,34 @@ with Dataset(nc_filename, 'w', format='NETCDF4') as ncfile:
     u_var = ncfile.createVariable('u', 'f4', ('x', 'y'))
     v_var = ncfile.createVariable('v', 'f4', ('x', 'y'))
 
+    # Create the vector field variable u(x, y)
+    txx_var = ncfile.createVariable('txx', 'f4', ('x', 'y'))
+    txy_var = ncfile.createVariable('txy', 'f4', ('x', 'y'))
+    tyy_var = ncfile.createVariable('tyy', 'f4', ('x', 'y'))
+
     # Assign data to the coordinate variables
     x_var[:,:] = x_grid
     y_var[:,:] = y_grid
 
     # Assign data to the scalar function variable
-    f_var[:, :] = f
+    f_var[:,:] = f
 
     # Assign data to the vector field variable
-    u_var[:, :] = u[:, :, 0]
-    v_var[:, :] = u[:, :, 1]
+    u_var[:,:] = u[:, :, 0]
+    v_var[:,:] = u[:, :, 1]
 
-    # Optional: Add units or descriptions
-    x_var.units = 'nondimensional'
-    y_var.units = 'nondimensional'
-    f_var.units = 'nondimensional'
-    u_var.units = 'nondimensional'
-    v_var.units = 'nondimensional'
-    f_var.description = 'Scalar function f(x, y) = y - x'
-    u_var.description = 'Constant vector field u(x, y) = 1'
-    v_var.description = 'Constant vector field v(x, y) = 1'
+    # Assign data to the vector field variable
+    txx_var[:,:] = t[:, :, 0, 0]
+    txy_var[:,:] = t[:, :, 0, 1]
+    tyy_var[:,:] = t[:, :, 1, 1]
+
+    # Add  descriptions
+    f_var.description = 'Scalar function f(x, y)'
+    u_var.description = 'Constant vector field u(x, y)'
+    v_var.description = 'Constant vector field v(x, y)'
+    txx_var.description = 'Constant tensor field txx(x, y)'
+    txy_var.description = 'Constant tensor field txy(x, y)'
+    tyy_var.description = 'Constant tensor field txy(y, y)'
 
 print(f"NetCDF file '{nc_filename}' created successfully.")
 

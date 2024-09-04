@@ -92,16 +92,22 @@ def transform_vector_2d(u,v,transf_u,transf_v,grid_type='T'):
     # Compute v at U points
     v_u[1:,1:] = ( v[0:-1, 0:-1] + v[1:, 0:-1] + v[0:-1, 1:] + v[1:, 1:] ) / 4
     v_u[0,:] = v[0,:] ; v_u[:,0] = v[:,0]
+    # Apply transformation to input vector
+    ru = u   * transf_u[0,0,:,:] + v_u * transf_u[0,1,:,:]
+    rv = u_v * transf_v[1,0,:,:] + v   * transf_v[1,1,:,:]
+    # Renormalize vector if required by user
+    if method == 'renormalization' :
+      rv_u = u   * transf_v[1,0,:,:] + v_u * transf_v[1,1,:,:]
+      ru_v = u_v * transf_u[0,0,:,:] + v   * transf_u[0,1,:,:]
+      renormalize_vector(ru  ,rv_u,u  ,v_u)
+      renormalize_vector(ru_v,rv  ,u_v,v  )
   else:
-    u_v = u
-    v_u = v
-
-  # Apply transformation to input vector
-  ru = u   * transf_u[0,0,:,:] +  v_u * transf_u[0,1,:,:]
-  rv = u_v * transf_v[1,0,:,:] +  v   * transf_v[1,1,:,:]
-
-  # Renormalize vector if required by user
-  # if method == 'renormalization' :
+    # Apply transformation to input vector
+    ru = u * transf_u[0,0,:,:] + v * transf_u[0,1,:,:]
+    rv = u * transf_v[1,0,:,:] + v * transf_v[1,1,:,:]
+    # Renormalize vector if required by user
+    if method == 'renormalization' :
+      renormalize_vector(ru,rv,u,v)
 
   return ru, rv
 
@@ -127,7 +133,10 @@ def transform_tensor(txx,txy,tyy,dx,dy,grid_type='T'):
 
   # Transform tensor for every 2d slice
   if ndim == 2 :
-    rtxx, rtxy, rtyy = transform_tensor_2d(txx,txy,tyy,transf)
+    txx2d = txx[:,:]
+    txy2d = txy[:,:]
+    tyy2d = tyy[:,:]
+    rtxx2d, rtxy2d, rtyy2d = transform_tensor_2d(txx2d,txy2d,tyy2d,transf)
     txx[:,:] = rtxx2d
     txy[:,:] = rtxy2d
     tyy[:,:] = rtyy2d
@@ -167,16 +176,47 @@ def transform_tensor_2d(txx,txy,tyy,transf):
   rtxx,rtxy,rtyy : transformed components of the tensor
   """
 
-  # Apply transformation to input tensor
-  rtxx = txx * transf[0,0,:,:]**2 + 2 * txy * transf[0,0,:,:] * transf[0,1,:,:] \
-         + tyy * transf[0,1,:,:]**2
-  rtxy = txx * transf[1,0,:,:] * transf[0,0,:,:] + tyy * transf[0,1,:,:] * transf[1,1,:,:] \
-         + tyy * ( transf[0,1,:,:] * transf[1,0,:,:] + transf[0,0,:,:] * transf[1,1,:,:] )
-  rtyy = txx * transf[1,0,:,:]**2 + 2 * txy * transf[1,0,:,:] * transf[1,1,:,:] \
-         + tyy * transf[1,1,:,:]**2
+  if method == 'renormalization' :
+    # Initialize output tensors
+    rtxx = np.zeros_like(txx)
+    rtxy = np.zeros_like(txx)
+    rtyy = np.zeros_like(txx)
 
-  # Renormalize tensor if required by user
-  # if method == 'renormalization' :
+    # Loop on grid points (this loop is inefficient!)
+    for i in range(txx.shape[0]):
+      for j in range(txx.shape[1]):
+        # Extract 2D tensor
+        tensor = np.array([[txx[i,j], txy[i,j]],
+                          [txy[i,j], tyy[i,j]]])
+        # Compute eigenvalues and eigenvectors
+        eival, eivec = np.linalg.eigh(tensor)
+        # Transform and renormalize first eigenvector
+        ru = eivec[0,0] * transf[0,0,i,j] + eivec[1,0] * transf[0,1,i,j]
+        rv = eivec[0,0] * transf[1,0,i,j] + eivec[1,0] * transf[1,1,i,j]
+        norm = np.sqrt(ru**2+rv**2)
+        eivec[0,0] = ru/norm
+        eivec[1,0] = rv/norm
+        # Transform and renormalize second eigenvector
+        ru = eivec[0,1] * transf[0,0,i,j] + eivec[1,1] * transf[0,1,i,j]
+        rv = eivec[0,1] * transf[1,0,i,j] + eivec[1,1] * transf[1,1,i,j]
+        norm = np.sqrt(ru**2+rv**2)
+        eivec[0,1] = ru/norm
+        eivec[1,1] = rv/norm
+        # Construct the diagonal matrix of eigenvalues
+        Lambda = np.diag(eival)
+        # Reconstruct the tensor with transformed eigenvectors
+        tensor = eivec @ Lambda @ eivec.T
+        rtxx[i,j] = tensor[0,0]
+        rtxy[i,j] = tensor[0,1]
+        rtyy[i,j] = tensor[1,1]
+  else:
+    # Directly apply transformation to input tensor
+    rtxx = txx * transf[0,0,:,:]**2 + 2 * txy * transf[0,0,:,:] * transf[0,1,:,:] \
+           + tyy * transf[0,1,:,:]**2
+    rtxy = txx * transf[1,0,:,:] * transf[0,0,:,:] + tyy * transf[0,1,:,:] * transf[1,1,:,:] \
+           + txy * ( transf[0,1,:,:] * transf[1,0,:,:] + transf[0,0,:,:] * transf[1,1,:,:] )
+    rtyy = txx * transf[1,0,:,:]**2 + 2 * txy * transf[1,0,:,:] * transf[1,1,:,:] \
+           + tyy * transf[1,1,:,:]**2
 
   return rtxx, rtxy, rtyy
 
@@ -246,4 +286,24 @@ def compute_transformation(dx,dy,grid_type='T'):
       transf[i,j,:,-1]   = transf[i,j,:,-2]
 
   return transf
+
+def renormalize_vector(ru,rv,u,v):
+  """
+  Renormalize vectors to original norm
+
+  Args:
+  ru,rv : components of the transformed vector
+  u,v   : components of the original vector
+  dx : perturbation along x coordinate
+  dy : perturbation along y coordinate
+
+  Returns:
+  ru,rv are modified in place
+  """
+
+  factor = np.sqrt ( ( u**2 + v**2 ) / ( ru**2 + rv**2 ) )
+  ru[:,:] = ru[:,:] * factor
+  rv[:,:] = rv[:,:] * factor
+
+  return
 

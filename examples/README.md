@@ -29,6 +29,9 @@ python plot_test_case.py -i input_file
 ```
 
 This should provide figures comparable to those provided here as an illustration.
+The scalar field is in color, with white isolines;
+the vector field is shown with black arrows;
+the tensor field is shown with blue ellipses.
 
 Reference field:
 
