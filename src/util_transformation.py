@@ -111,6 +111,26 @@ def transform_vector_2d(u,v,transf_u,transf_v,grid_type='T'):
 
   return ru, rv
 
+def renormalize_vector(ru,rv,u,v):
+  """
+  Renormalize vectors to original norm
+
+  Args:
+  ru,rv : components of the transformed vector
+  u,v   : components of the original vector
+  dx : perturbation along x coordinate
+  dy : perturbation along y coordinate
+
+  Returns:
+  ru,rv are modified in place
+  """
+
+  factor = np.sqrt ( ( u**2 + v**2 ) / ( ru**2 + rv**2 ) )
+  ru[:,:] = ru[:,:] * factor
+  rv[:,:] = rv[:,:] * factor
+
+  return
+
 def transform_tensor(txx,txy,tyy,dx,dy,grid_type='T'):
   """
   Transform symmetric tensor to follow the perturbation of the coordinates
@@ -182,7 +202,7 @@ def transform_tensor_2d(txx,txy,tyy,transf):
     rtxy = np.zeros_like(txx)
     rtyy = np.zeros_like(txx)
 
-    # Loop on grid points (this loop is inefficient!)
+    # Loop on grid points (this loop is inefficient for large problems!)
     for i in range(txx.shape[0]):
       for j in range(txx.shape[1]):
         # Extract 2D tensor
@@ -276,6 +296,15 @@ def compute_transformation(dx,dy,grid_type='T'):
     transf[0,1,jlo:-1,ilo:-1] = - dx_y / det
     transf[1,0,jlo:-1,ilo:-1] = - dy_x / det
     transf[1,1,jlo:-1,ilo:-1] = ( 1 + dx_x ) / det
+    # Check definite positiveness of the Jacobian
+    count = np.count_nonzero( (1+dx_x > 0) & (det > 0) )
+    if count < det.size :
+      formatted_count = f"{100*(1-count/det.size):.2f}"
+      print("E R R O R :")
+      print(f"Transformation is singular on {formatted_count}% of the domain")
+      print("Consider reducing the ratio between the standard deviation and the correlation length scale")
+      print("or using the rotation_only option for vectors and tensors.")
+      raise ValueError("Singular transformation") 
 
   # Extrapolate to boundaries
   for i in range(1):
@@ -286,24 +315,4 @@ def compute_transformation(dx,dy,grid_type='T'):
       transf[i,j,:,-1]   = transf[i,j,:,-2]
 
   return transf
-
-def renormalize_vector(ru,rv,u,v):
-  """
-  Renormalize vectors to original norm
-
-  Args:
-  ru,rv : components of the transformed vector
-  u,v   : components of the original vector
-  dx : perturbation along x coordinate
-  dy : perturbation along y coordinate
-
-  Returns:
-  ru,rv are modified in place
-  """
-
-  factor = np.sqrt ( ( u**2 + v**2 ) / ( ru**2 + rv**2 ) )
-  ru[:,:] = ru[:,:] * factor
-  rv[:,:] = rv[:,:] * factor
-
-  return
 
