@@ -147,7 +147,7 @@ This code is primarily intended for use with scalar fields and with small value 
 Regarding vectors and tensors, we start by applying the perturbation to each component as explained above.
 But this is usually not enough to maintain a sufficient local coherence of the state of the system.
 As explained above, everything cannot be preserved, and the appropriate method
-to adjust vectors and tensors depend on the application.
+to adjust vectors and tensors depends on the application.
 We have included only a few in the code:
 
 1. Transform vectors and tensors with the inverse Jacobian of the change of coordinates.
@@ -163,7 +163,7 @@ This is the method used by default, unless otherwise specified.
 ($J^{-1}= R D$) and apply only the rotation to vectors and tensors.
 
 The first two solutions requires that the transformation is regular, but not necessarily the third one.
-As already said, we see that we cannot preserve everything, and that
+As already said, we see that we cannot conserve everything, and that
 location uncertainty inevitably involves uncertainty
 in the relative orientation of the structures.
 
