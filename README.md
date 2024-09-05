@@ -91,9 +91,9 @@ apply_perturbations.py
 ```
 
 The reference file contains the geophysical fields that must be perturbed.
-The standard deviation of the pertrubation (assumed here homogeneous)
+The standard deviation of the perturbation (assumed here homogeneous)
 is given by `perturbation_std` (in grid points in this simplified case).
-The list of variables to pertrub is given by a text file with the following format:
+The list of variables to perturb is given by a text file with the following format:
 
 ```
 var1 scalar T
@@ -117,6 +117,12 @@ and tensors by groups of 3 successive variables.
 For vectors, we must provide the components x and y, and
 for tensors, we must provide the components xx, xy, and yy
 (in that order, assuming symmetry of the tensor).
+
+### About the perturbation
+
+The perturbed of a variabke at grid point $(x_i,y_i)$
+is obtained by interpolating the reference field at location $(x_i+\delta x_i,y_i+\delta y_i)$,
+where $(\delta x_i,\delta y_i)$ is a random perturbation of the location.
 
 The typical magnitude of the local deformation of the coordinates and rotation angle
 is `perturbation_std / correlation_length_scale`.
@@ -183,7 +189,7 @@ in the application of the perturbations
 ```
 
 More generally, this option can also be used to modulate spatially
-the amplitude of the pertrubations.
+the amplitude of the perturbations.
 
 In addition, to re-apply the mask on the perturbed field, we can use
 another optional argument in the application of the perturbations
