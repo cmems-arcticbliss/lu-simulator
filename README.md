@@ -120,13 +120,29 @@ for tensors, we must provide the components xx, xy, and yy
 
 ### About the perturbation
 
-The perturbed of a variabke at grid point $(x_i,y_i)$
+The perturbed of a variable at grid point $(x_i,y_i)$
 is obtained by interpolating the reference field at location $(x_i+\delta x_i,y_i+\delta y_i)$,
 where $(\delta x_i,\delta y_i)$ is a random perturbation of the location.
+All variables at a given grid point are perturbed using the same $(\delta x_i,\delta y_i)$,
+so that they all come from the same location in the reference field.
+For staggered grid, the perturbation $(\delta x_i,\delta y_i)$ is interpolated
+from grid T to the required grid.
 
-The typical magnitude of the local deformation of the coordinates and rotation angle
-is `perturbation_std / correlation_length_scale`.
+At a given location, the perturbation $(\delta x_i,\delta y_i)$
+is an isotropic normal random vector with a user-defined standard deviation (`perturbation_std`).
+It is horizontally correlated according to a user-defined correlation length scale (`correlation_length_scale`).
+By default, the horizontal correlation structure is Gaussian,
+but other options are possible (see below).
+
+Since $(\delta x,\delta y)$ is not constant, the perturbation of the scalar fields
+can locally be viewed as a combination of a translation, a rotation and a deformation.
+Because of the deformation, the local structure of the reference field can be modified,
+as for instance the magnitude of the gradient, or the orthogonality bewteen isolines.
+The typical magnitude of the local rotation and deformation is the ratio
+between the standard deviation and the correlation length scale
+($rho=$ `perturbation_std` / `correlation_length_scale`).
 Choose it much smaller than 1 if you want to keep the transformation regular.
+This code is primarily intended for use with scalar fields and with small value of $rho$.
 
 ### Use world coordinates
 
