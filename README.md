@@ -140,9 +140,9 @@ Because of the deformation, the local structure of the reference field can be mo
 as for instance the magnitude of the gradient, or the orthogonality bewteen isolines.
 The typical magnitude of the local rotation and deformation is the ratio
 between the standard deviation and the correlation length scale
-($rho=$ `perturbation_std` / `correlation_length_scale`).
+($\rho=$ `perturbation_std` / `correlation_length_scale`).
 Choose it much smaller than 1 if you want to keep the transformation regular.
-This code is primarily intended for use with scalar fields and with small value of $rho$.
+This code is primarily intended for use with scalar fields and with small value of $\rho$.
 
 ### Use world coordinates
 
