@@ -6,10 +6,10 @@ Developed by Jean-Michel Brankart, IR CNRS @IGE in Grenoble, France in collabora
 ### About
 A tool to simulate horizontal location uncertainty in 2D or 3D geophysical fields.
 
-This is done by a random perturbation of the coordinate system,
-with interpolation on the original grid.
+This is done by a random perturbation of the horizontal grid,
+with re-interpolation on the original grid.
 
-The code is developed in the framework of the Arctic-BLISS project [add REF]
+The code is developed in the framework of the [Arctic-BLISS project](https://github.com/cmems-arcticbliss)
 to study the sensitivity of sea-ice prediction systems to small perturbations
 of the initial condition (predictability experiment).
 
@@ -22,7 +22,7 @@ Further possible applications include:
 - augment the size of the ensemble (or of the ML catalogue)
   with additional possible states of the system.
 
-As compared to the classic method, which produces Gaussian perturbations
+As compared to the classic method, which produces Gaussian perturbations of the model variables
 in a specific modal subspace (EOFs, singular vectors, bred vectors,...),
 this method has the originality of producing non-Gaussian perturbations
 of the geoohysical fields through a Gaussian perturbation of the coordinates.
@@ -109,7 +109,7 @@ var9 tensor T
 varn scalar F
 ```
 
-In this file, `var`*n* are the names of the variables in the reference NetCDF file.
+In this file, `var*n*` are the names of the variables in the reference NetCDF file.
 The second column gives the type of each variable (scalar, vector or tensor),
 and the third column gives the grid type (T, U, V or F).
 Vectors must come by groups of 2 successive variables,
