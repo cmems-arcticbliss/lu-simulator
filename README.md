@@ -1,9 +1,5 @@
 # lu-simulator : location uncertainty simulator
 
-### Credits: 
-Developed by Jean-Michel Brankart, IR CNRS @IGE in Grenoble, France in collaboration with S. Leroux, Datlas, Grenoble.
-
-### About
 A tool to simulate horizontal location uncertainty in 2D or 3D geophysical fields.
 
 This is done by a random perturbation of the horizontal grid,
@@ -30,6 +26,10 @@ This can be especially useful in applications where an accurate location
 of structures is important.
 
 See the example directory for an illustration.
+
+### Credits:
+
+Developed by Jean-Michel Brankart, IR CNRS @IGE in Grenoble, France in collaboration with S. Leroux, Datlas, Grenoble.
 
 ### Requirements
 
@@ -109,7 +109,7 @@ var9 tensor T
 varn scalar F
 ```
 
-In this file, `var*n*` are the names of the variables in the reference NetCDF file.
+In this file, `varn` are the names of the variables in the reference NetCDF file.
 The second column gives the type of each variable (scalar, vector or tensor),
 and the third column gives the grid type (T, U, V or F).
 Vectors must come by groups of 2 successive variables,
@@ -139,7 +139,7 @@ With these options, the location of the grid points are read from the grid file.
 The unit of length scales to provide (`correlation_length_scale` and `perturbation_std`)
 is then the same unit as the coordinates in the grid file.
 
-In all case, the spectrum of the perturbations can be modified by the option:
+In all cases, the spectrum of the perturbations can be modified by the option:
 
 ```
   -spct spectrum_type
@@ -240,5 +240,5 @@ The gain in clock time should be roughly proportional to the number of processor
 
 On the other hand, `apply_perturbations.py` can also be parallelized
 (with the same optional parameter) by running different members on different processors.
-In this case, be sure that the number of procesors divide the number of members
+In this case, be sure that the number of processors divide the number of members
 so that each processor computes the same number of members.
