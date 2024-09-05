@@ -43,7 +43,7 @@ jdim = x.shape[1]
 fig, ax = plt.subplots(figsize=(8, 8))
 
 # Display the scalar field with colors
-plt.imshow(f, extent=[0, 1, 0, 1], origin='lower', cmap='cividis', alpha=0.7)
+plt.imshow(f, extent=[0, 1, 0, 1], origin='lower', cmap='cividis', alpha=0.7,vmin=-1,vmax=1)
 plt.colorbar(label='Scalar value',cmap='cividis',shrink=0.7) # Add color bar to show scalar values
 
 # Display the scalar field with white contours
