@@ -114,11 +114,6 @@ The second column gives the type of each variable (scalar, vector or tensor),
 and the third column gives the grid type (T, U, V or F).
 Vectors must come by groups of 2 successive variables,
 and tensors by groups of 3 successive variables.
-
-The program needs to know if the variables corresponds to scalar, vector or tensor fields
-because vectors and tensors must be rotated with the coordinate system
-(so that the local orientation of vectors and tensors
-with respect to scalar fields remains unchanged).
 For vectors, we must provide the components x and y, and
 for tensors, we must provide the components xx, xy, and yy
 (in that order, assuming symmetry of the tensor).
