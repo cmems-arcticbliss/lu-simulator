@@ -23,7 +23,7 @@ in a specific modal subspace (EOFs, singular vectors, bred vectors,...),
 this method has the originality of producing non-Gaussian perturbations
 of the geoohysical fields through a Gaussian perturbation of the coordinates.
 This can be especially useful in applications where the system
-is very sensitive to small perturbations of the location of structures.
+is very sensitive to small perturbations in the location of structures.
 
 See the example directory for an illustration.
 
