@@ -10,6 +10,7 @@ Module parameters:
 """
 import numpy as np
 import util_grid
+import util_tensors
 
 # Method used for transformation:
 # jacobian : apply full jacobian transformation
@@ -197,56 +198,7 @@ def transform_tensor_2d(txx,txy,tyy,transf):
   """
 
   if method == 'renormalization' :
-    # Initialize output tensors
-    rtxx = np.zeros_like(txx)
-    rtxy = np.zeros_like(txx)
-    rtyy = np.zeros_like(txx)
-
-    # Loop on grid points (this loop is inefficient for large problems!)
-    for i in range(txx.shape[0]):
-      for j in range(txx.shape[1]):
-        # Extract 2D tensor
-        tensor = np.array([[txx[i,j], txy[i,j]],
-                          [txy[i,j], tyy[i,j]]])
-        # Compute eigenvalues and eigenvectors
-        eival, eivec = np.linalg.eigh(tensor)
-        # Transform and renormalize first eigenvector
-        ru = eivec[0,0] * transf[0,0,i,j] + eivec[1,0] * transf[0,1,i,j]
-        rv = eivec[0,0] * transf[1,0,i,j] + eivec[1,0] * transf[1,1,i,j]
-        norm = np.sqrt(ru**2+rv**2)
-        eivec[0,0] = ru/norm
-        eivec[1,0] = rv/norm
-        # Transform and renormalize second eigenvector
-        ru = eivec[0,1] * transf[0,0,i,j] + eivec[1,1] * transf[0,1,i,j]
-        rv = eivec[0,1] * transf[1,0,i,j] + eivec[1,1] * transf[1,1,i,j]
-        norm = np.sqrt(ru**2+rv**2)
-        eivec[0,1] = ru/norm
-        eivec[1,1] = rv/norm
-        # Re-orthogonalize eigenvectors
-        # dtheta = np.arctan2(u_x v_y - u_y v_x, u_x v_x + u_y v_y)
-        theta1 = np.arctan2( eivec[1,0] , eivec[0,0] )
-        theta2 = np.arctan2( eivec[1,1] , eivec[0,1] )
-        dtheta = np.arctan2( eivec[0,0] * eivec[1,1] - eivec[1,0] * eivec[0,1] ,
-                             eivec[0,0] * eivec[0,1] + eivec[1,0] * eivec[1,1] )
-        ratio = eival[1] / ( eival[0] + eival[1] )
-        if dtheta > 0 :
-          theta1 = theta1 - ( dtheta - np.pi/2 ) * ratio
-          theta2 = theta2 + ( dtheta - np.pi/2 ) * ( 1 - ratio)
-        else :
-          theta1 = theta1 + ( dtheta + np.pi/2 ) * ratio
-          theta2 = theta2 - ( dtheta + np.pi/2 ) * ( 1 - ratio)
-        delta = np.abs(theta2-theta1) - np.pi/2
-        eivec[0,0] = np.cos(theta1)
-        eivec[1,0] = np.sin(theta1)
-        eivec[0,1] = np.cos(theta2)
-        eivec[1,1] = np.sin(theta2)
-        # Construct the diagonal matrix of eigenvalues
-        Lambda = np.diag(eival)
-        # Reconstruct the tensor with transformed eigenvectors
-        tensor = eivec @ Lambda @ eivec.T
-        rtxx[i,j] = tensor[0,0]
-        rtxy[i,j] = tensor[0,1]
-        rtyy[i,j] = tensor[1,1]
+    rtxx, rtxy, rtyy = util_tensors.transform_tensor_2d_renorm(txx,txy,tyy,transf)
   else:
     # Directly apply transformation to input tensor
     rtxx = txx * transf[0,0,:,:]**2 + 2 * txy * transf[0,0,:,:] * transf[0,1,:,:] \
