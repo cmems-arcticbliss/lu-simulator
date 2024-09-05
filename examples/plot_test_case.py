@@ -65,8 +65,8 @@ for i in range(9,idim-1,10):
     angle = np.degrees(np.arctan2(*eigenvectors[:, 0][::-1]))
 
     # Width and height of the ellipse are proportional to the square root of the eigenvalues
-    plot_scale = 30
-    width, height = 2 * np.sqrt(eigenvalues) / plot_scale
+    plot_scale = 15
+    width, height = np.sqrt(eigenvalues) / plot_scale
 
     # Position
     ellipse = Ellipse(xy=(x[i, j], y[i, j]), width=width, height=height,

@@ -15,12 +15,26 @@ u = np.ones((grid_size, grid_size, 2))  # Last dimension is 2 for the vector com
 
 # Define a constant tensor field t(x, y) = ( [a, c] , [c, b] )
 # (symmetric, positive definite)
-a = 1.2 ; b = 1 ; c = 1
+# defined by angle and eigenvalues
+angle = np.pi / 4 ; eival1 = 2 ; eival2 = 0.15
+
+# Construct tensor array from angle and eigenvalues
+eival = np.zeros((2))
+eivec = np.zeros((2,2))
+eival[0] = eival1
+eival[1] = eival2
+theta1 = angle ; theta2 = angle + np.pi /2
+eivec[0,0] = np.cos(theta1)
+eivec[1,0] = np.sin(theta1)
+eivec[0,1] = np.cos(theta2)
+eivec[1,1] = np.sin(theta2)
+Lambda = np.diag(eival)
+tensor = eivec @ Lambda @ eivec.T
+
 t = np.zeros((grid_size, grid_size, 2, 2))
 for i in range(grid_size):
     for j in range(grid_size):
-        t[i,j,:,:] = np.array([[a, c],
-                               [c, b]])
+        t[i,j,:,:] = tensor
 
 # Create a new NetCDF file
 nc_filename = 'test.nc'

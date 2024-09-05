@@ -148,7 +148,7 @@ def transform_tensor(txx,txy,tyy,dx,dy,grid_type='T'):
   # Dimension of input variable
   ndim = txx.ndim
 
-  # Calculate the angle of rotation at appropriate grid points
+  # Calculate the transformation at appropriate grid points
   transf = compute_transformation(dx,dy,grid_type)
 
   # Transform tensor for every 2d slice
@@ -222,6 +222,24 @@ def transform_tensor_2d(txx,txy,tyy,transf):
         norm = np.sqrt(ru**2+rv**2)
         eivec[0,1] = ru/norm
         eivec[1,1] = rv/norm
+        # Re-orthogonalize eigenvectors
+        # dtheta = np.arctan2(u_x v_y - u_y v_x, u_x v_x + u_y v_y)
+        theta1 = np.arctan2( eivec[1,0] , eivec[0,0] )
+        theta2 = np.arctan2( eivec[1,1] , eivec[0,1] )
+        dtheta = np.arctan2( eivec[0,0] * eivec[1,1] - eivec[1,0] * eivec[0,1] ,
+                             eivec[0,0] * eivec[0,1] + eivec[1,0] * eivec[1,1] )
+        ratio = eival[1] / ( eival[0] + eival[1] )
+        if dtheta > 0 :
+          theta1 = theta1 - ( dtheta - np.pi/2 ) * ratio
+          theta2 = theta2 + ( dtheta - np.pi/2 ) * ( 1 - ratio)
+        else :
+          theta1 = theta1 + ( dtheta + np.pi/2 ) * ratio
+          theta2 = theta2 - ( dtheta + np.pi/2 ) * ( 1 - ratio)
+        delta = np.abs(theta2-theta1) - np.pi/2
+        eivec[0,0] = np.cos(theta1)
+        eivec[1,0] = np.sin(theta1)
+        eivec[0,1] = np.cos(theta2)
+        eivec[1,1] = np.sin(theta2)
         # Construct the diagonal matrix of eigenvalues
         Lambda = np.diag(eival)
         # Reconstruct the tensor with transformed eigenvectors
