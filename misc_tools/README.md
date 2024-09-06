@@ -10,7 +10,7 @@ rebuild_nemo -d 2 -x 492 -y 566 NANUK4_ICE_ABL-ABLEVP903_00007080_restart_ice  3
 
 
 ## 2. Read the restart file and sort out variables according to some pre-defined rules
-The goal is to create an output test file that will contain four lists of the variables names, depending on their corresponding mask type. The first line has the variable names to which we need to apply the tmask, second line for fmask, third line for umask, fourth line for vmask. 
+The goal is to create an output text file that will contain four lists of the variables names, depending on their corresponding mask type. The first line has the variable names to which we need to apply the tmask, second line for fmask, third line for umask, fourth line for vmask. 
 
 Usage on Jean Zay:
 ```
