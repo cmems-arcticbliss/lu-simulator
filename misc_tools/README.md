@@ -12,10 +12,9 @@ rebuild_nemo -d 2 -x 492 -y 566 NANUK4_ICE_ABL-ABLEVP903_00007080_restart_ice  3
 ## 2. Read the restart file and sort out variables according to some pre-defined rules
 The goal is to create an output text file that will contain four lists of the variables names, depending on their corresponding mask type. The first line has the variable names to which we need to apply the tmask, second line for fmask, third line for umask, fourth line for vmask. 
 
-Usage on Jean Zay:
+Usage:
 ```
-# load python with xarray
-module load climate_science
+# load python with xarray (on jean jay: module load climate_science)
 
 cd path/to/restart/file/directory/and/mesh/mask/file
 
@@ -47,10 +46,9 @@ This file doesn't need to contain all the variables. If not in the list, the var
 ## 3. Create a masked copy of the restart file
 Create a copy of the restart file  where each variable will be replaced by its mask according to the text file as an argument that lists the variables for each mask type.
 
-Usage on Jean Zay:
+Usage:
 ```
-# load python with xarray
-module load climate_science
+# load python with xarray (on jean jay: module load climate_science)
 
 cd path/to/restart/file/directory/and/mesh/mask/file
 
