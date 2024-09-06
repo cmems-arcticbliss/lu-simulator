@@ -1,7 +1,7 @@
 The lu generator can be applied  to perturb a NEMO-SI3 restart file for sea ice. This notebook explains how to create a file that will contain the correct mask for each variable in the restart file. The lu generator takes this restart-mask file as an input as well as the actual restart file.
 
 ## 1. Rebuild the restart file (if needed)
-You might need to use the "rebuild" tools from the NEMO to rebuild your restart file over the entire domain.
+You might need to use the "rebuild" tools from NEMO to rebuild your restart file over the entire domain.
 
 Example how to do so (rebuilds restart decomposed on 38 subdomains):
 ````
