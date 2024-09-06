@@ -59,4 +59,4 @@ module load climate_science
 ./mkrstmask.py mesh_mask_NANUK4_L31_4.2.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice_mask.nc varlistall.asc 
 ```
 
-Note that the created files has added a _Fillvalue attribute to each variable compared to the original restart files. It does should not interfere with the usage the lu generator makes of the mask file.
+Note that the created files has added a  `_Fillvalue` attribute to each variable compared to the original restart files. It  should not interfere with the usage the lu generator makes of the mask file (?).
