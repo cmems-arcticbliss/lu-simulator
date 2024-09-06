@@ -45,7 +45,7 @@ Vu_sub,Vv_sub,vUice,v_i,v_ice,v_il,v_ip,v_s
 This file doesn't need to contain all the variables. If not in the list, the variables will be treated as before (i.e. non-zero values replaced by ones, and everything else set to zero).
 
 ## 3. Create a masked copy of the restart file
-Create a copy of the restart file  where each variable will be replaced by its mask according to the text file as an argument that list the variables for each mask type.
+Create a copy of the restart file  where each variable will be replaced by its mask according to the text file as an argument that lists the variables for each mask type.
 
 Usage on Jean Zay:
 ```
