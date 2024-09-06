@@ -36,7 +36,7 @@ The variables are sorted based on the following criteria:
 Only the lists corresponding to t,f,u,v masks are written in the text file. But all the lists are displayed on the screen for your information.
 
 An example of what the output text file looks like is:
-````
+```
 dmgt,sgm11t,sgm12t,sgm22t
 dmgf,sgm11f,sgm12f,sgm22f
 Uu_sub,Uv_sub,uVice,u_ice
