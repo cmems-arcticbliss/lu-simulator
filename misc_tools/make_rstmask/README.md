@@ -19,7 +19,7 @@ Usage:
 cd path/to/restart/file/directory/and/mesh/mask/file
 
 # sort out variables from the restart file according to what we can guess (this will have to be modified when we know for sure!)
-./sortvarsrst.py NANUK4_ICE_ABL-ABLBBM_restart_ice_mask.nc varlistall.asc
+./sortvarsrst.py NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice.nc varlistall.asc
 ```
 
 Note that at this stage, the predefined rules to sort out the variables are not all correct because for some variables, we don't know yet to which mask type they correspond. THIS CODE WILL NEED TO BE CORRECTED before final use. 
