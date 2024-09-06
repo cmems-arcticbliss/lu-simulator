@@ -25,15 +25,15 @@ cd path/to/restart/file/directory/and/mesh/mask/file
 
 Note that at this stage, the predefined rules to sort out the variables are not all correct because for some variables, we don't know yet to which mask type they correspond. THIS CODE WILL NEED TO BE CORRECTED before final use. 
 The variables are sorted based on the following criteria:
-    - Variables with only one dimension or dimensions (y, x) are added to `varlist_skip`.
-    - Variables ending with 't' are added to `varlist_tmask`.
-    - Variables ending with 'f' are added to `varlist_fmask`.
-    - Variables starting with 'u' or 'U' are added to `varlist_umask`.
-    - Variables starting with 'v' or 'V' are added to `varlist_vmask`.
-    - Variables starting with 'sx' or 'sy' are added to `varlist_moments`.
-    - All other variables are added to `varlist_remain`.
+* Variables with only one dimension or dimensions (y, x) are added to `varlist_skip`.
+* Variables ending with 't' are added to `varlist_tmask`.
+* Variables ending with 'f' are added to `varlist_fmask`.
+* Variables starting with 'u' or 'U' are added to `varlist_umask`.
+* Variables starting with 'v' or 'V' are added to `varlist_vmask`.
+* Variables starting with 'sx' or 'sy' are added to `varlist_moments`.
+* All other variables are added to `varlist_remain`.
 
-    A test is applied to check if all variables have been sorted out in a list.
+Only the lists corresponding to t,f,u,v masks are written in the text file. But all the lists are displayed on the screen for your information.
 
 An example of what the output text file looks like is:
 ````
