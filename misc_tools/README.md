@@ -25,7 +25,7 @@ cd path/to/restart/file/directory/and/mesh/mask/file
 
 Note that at this stage, the predefined rules to sort out the variables are not all correct because for some variables, we don't know yet to which mask type they correspond. THIS CODE WILL NEED TO BE CORRECTED before final use. 
 The variables are sorted based on the following criteria:
-* Variables with only one dimension or dimensions (y, x) are added to `varlist_skip`.
+* Variables with dimensions strictly smaller than 3 are added to `varlist_skip`.
 * Variables ending with 't' are added to `varlist_tmask`.
 * Variables ending with 'f' are added to `varlist_fmask`.
 * Variables starting with 'u' or 'U' are added to `varlist_umask`.
