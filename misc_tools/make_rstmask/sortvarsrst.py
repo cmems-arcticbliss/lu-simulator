@@ -37,9 +37,9 @@ def determine_type(var_name):
     return 'scalar'
 
 
-def sort_variables_rst(file_path, output_file_path, second_output_file_path, include_all_lists=False):
+def sort_variables_rst(file_path, output_file_path, verbose=False):
     """
-    Sorts variables from a NEMO restart file in NetCDF format into different lists based on their names and writes these lists to two text files.
+    Sorts variables from a NEMO restart file in NetCDF format into different lists based on their names and writes this information in an output text file.
 
     The variables are sorted based on the following criteria:
     - Variables with only one dimension or dimensions (y, x) are added to `varlist_skip`.
@@ -50,13 +50,12 @@ def sort_variables_rst(file_path, output_file_path, second_output_file_path, inc
     - Variable names 'vUice', 'Uu_sub', 'Vu_sub', and 'u_ice' are added to `varlist_umask`.
     - All other variables are added to the `varlist_tmask` and `varlist_remain`.
     
-    The second text file contains variable name, type (scalar, vector, tensor), and grid (T, U, V, F) for each non-skiped variable.
+    Based on these lists, a text file is written,  containaing variable name, type (scalar, vector, tensor), and grid type (T, U, V, F) for each non-skiped variable.
 
     Args:
         file_path (str): Path to the input NetCDF file.
-        output_file_path (str): Path to the output text file where the sorted variable lists will be written.
-        second_output_file_path (str): Path to the second output text file for variable name, type, and grid.
-        include_all_lists (bool): If True, includes the 'moments', 'skip', and 'remain' lists in the first output file. Default is False.
+        output_file_path (str): Path to the  output text file where is written the variable name, type, and grid type.
+        
     """
     # Load the dataset
     ds = xr.open_dataset(file_path)
@@ -113,19 +112,8 @@ def sort_variables_rst(file_path, output_file_path, second_output_file_path, inc
     varlist_vmask.sort()
    
 
-    # Write to the first output file
-    with open(output_file_path, 'w') as f:
-        f.write(','.join(varlist_tmask) + '\n')
-        f.write(','.join(varlist_fmask) + '\n')
-        f.write(','.join(varlist_umask) + '\n')
-        f.write(','.join(varlist_vmask) + '\n')
-        if include_all_lists:
-            f.write(','.join(varlist_moments) + '\n')
-            f.write(','.join(varlist_skip) + '\n')
-            f.write(','.join(varlist_remain) + '\n')
-
-    # Write to the second output file (excluding skip variables)
-    with open(second_output_file_path, 'w') as f2:
+    # Write to the  output file 
+    with open(output_file_path, 'w') as f2:
         for var_name in varlist_tmask:
             if var_name not in varlist_skip:
                 f2.write(f"{var_name} {determine_type(var_name)} T\n")
@@ -139,24 +127,22 @@ def sort_variables_rst(file_path, output_file_path, second_output_file_path, inc
             if var_name not in varlist_skip:
                 f2.write(f"{var_name} {determine_type(var_name)} V\n")
 
-    # Print the lists to the terminal
-    print("\nVariables with only 1 dimension or (y, x) (varlist_skip):")
-    pprint(varlist_skip)
-
-    print("\nVariables ending with 'f' (varlist_fmask):")
-    pprint(varlist_fmask)
-
-    print("\nVariables in the umask list (varlist_umask):")
-    pprint(varlist_umask)
-
-    print("\nVariables in the vmask list (varlist_vmask):")
-    pprint(varlist_vmask)
-
-    print("\nVariables ending with 't' (varlist_tmask):")
-    pprint(varlist_tmask)
-
-    print("\nVariables not sorted into any list (varlist_remain):")
-    pprint(varlist_remain)
+    if verbose:
+        # Print the lists to the terminal
+        print("\nVariables with only 1 dimension or (y, x) (varlist_skip):")
+        pprint(varlist_skip)
+    
+        print("\nVariables ending with 'f' (varlist_fmask):")
+        pprint(varlist_fmask)
+    
+        print("\nVariables in the umask list (varlist_umask):")
+        pprint(varlist_umask)
+    
+        print("\nVariables in the vmask list (varlist_vmask):")
+        pprint(varlist_vmask)
+    
+        print("\nVariables ending with 't' (varlist_tmask):")
+        pprint(varlist_tmask)
 
     # Check if the total number of variables is consistent
     total_vars = len(ds.data_vars)
@@ -171,15 +157,13 @@ def sort_variables_rst(file_path, output_file_path, second_output_file_path, inc
     else:
         print("Warning: The total number of variables does not match the sum of variables in each list.")
 
-    print(f"Lists have been written to the text file: {output_file_path} in the current directory.")
-    print(f"Variable grid and type information has been written to: {second_output_file_path}.")
+    print(f"Variable grid and type information has been written to this file {output_file_path}.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Sort variables in a NetCDF file into different lists and write to text files.")
     parser.add_argument('input_file', type=str, help='Path to the input NetCDF file.')
-    parser.add_argument('output_file', type=str, help='Path to the first output text file.')
-    parser.add_argument('second_output_file', type=str, help='Path to the second output text file.')
-    parser.add_argument('-alllists', action='store_true', help='Include the "moments", "skip", and "remain" lists in the first output file.')
+    parser.add_argument('output_file', type=str, help='Path to the  output text file.')
+    parser.add_argument('--verbose', action='store_true', help='Print all lists.')
     args = parser.parse_args()
 
-    sort_variables_rst(args.input_file, args.output_file, args.second_output_file, include_all_lists=args.alllists)
+    sort_variables_rst(args.input_file, args.output_file,  verbose=args.verbose)

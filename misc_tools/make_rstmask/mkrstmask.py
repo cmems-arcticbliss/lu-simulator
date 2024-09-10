@@ -3,12 +3,58 @@
 import xarray as xr
 import argparse
 
+def read_and_categorize(file_path):
+    """
+    Reads a text file containing variable names, their type (scalar,vector,tensor) and grid type (T,F,U,V)  and categorizes them into lists based on the grid type. 
+
+    Args:
+        file_path (str): Path to the input text file.
+
+    Returns:
+        dict: A dictionary with grid types as keys and lists of variable names as values.
+    """
+    # Initialize the dictionary with empty lists for each grid type
+    var_lists = {
+        'tmask': [],
+        'fmask': [],
+        'umask': [],
+        'vmask': []
+    }
+
+    # Read the file and categorize each variable
+    with open(file_path, 'r') as file:
+        for line in file:
+            # Strip any leading/trailing whitespace and split by space
+            line = line.strip()
+            if not line:
+                continue
+            
+            parts = line.split()
+            if len(parts) != 3:
+                print(f"Skipping malformed line: {line}")
+                continue
+            
+            var_name, var_type, grid = parts
+            
+            # Append the variable to the appropriate list based on the grid type
+            if grid == 'T':
+                var_lists['tmask'].append(var_name)
+            elif grid == 'F':
+                var_lists['fmask'].append(var_name)
+            elif grid == 'U':
+                var_lists['umask'].append(var_name)
+            elif grid == 'V':
+                var_lists['vmask'].append(var_name)
+            else:
+                print(f"Unknown grid type '{grid}' for variable '{var_name}'")
+
+    return var_lists
+
+
 def create_rst_mask(mask_file, data_file, output_file, lists_file):
     """
-    Copy and replaces values in a NEMO restart file (NetCDF) with the  masks corresponding to each variable. The masks are read from another NetCDF file.
-
-    The function applies masks to the variables in the data file based on predefined lists read from a text file that can be prepared by the `sortvarsrst.py` script.
-    For those variables not in the list (because we don't know its mask type yet, and if dimension larger than 2, the values are replaced by ones where the variable is not zero and by zeroes elsewhere.
+    Copy and replaces values in a NEMO restart file (NetCDF) with the  mask corresponding to each variable. The corresponding mask   is  read from a separate NetCDF file, and the corresponding mask type for each variable is determined based on information  read from a text file that can be prepared manually or using the `sortvarsrst.py` script.
+    If some variables from the restart file are not listed in the text file and if dimension larger than 2, the values are replaced by ones where the variable is not zero and by zeroes elsewhere.
 
     Parameters
     ----------
@@ -17,14 +63,11 @@ def create_rst_mask(mask_file, data_file, output_file, lists_file):
     data_file : str
         Path to the NEMO restart file (NetCDF) to be copied and modified with mask values.
     output_file : str
-        Path to the output NetCDF file where the modified restart data will be saved.
-    lists_file : str
-        Path to the text file containing variable lists for t, f, u, v masks.
+        Path to the text file containing the grid type info. Format: one line per variable: varname, variable type (scalar,vector,tensor), variable grid type (T,F,U,V) 
 
     Notes
     -----
-    This function expects the mask file to contain the variables `tmask`, `fmask`, `umask`, and `vmask` 
-    and the lists file to contain the variables categorized into different masks in this order: tmask,fmask,umask,vmask.
+    This function expects the mask file to contain the variables `tmask`, `fmask`, `umask`, and `vmask`.
     """
     # Load the mask dataset
     mask_ds = xr.open_dataset(mask_file)
@@ -32,16 +75,8 @@ def create_rst_mask(mask_file, data_file, output_file, lists_file):
     # Load the data dataset
     data_ds = xr.open_dataset(data_file)
 
-    # Create a new dataset to store modifications
-    #data_ds_mod = data_ds.copy(deep=True)
-
     # Read the variable lists from the text file
-    var_lists = {}
-    with open(lists_file, 'r') as f:
-        var_lists['tmask'] = f.readline().strip().split(',')
-        var_lists['fmask'] = f.readline().strip().split(',')
-        var_lists['umask'] = f.readline().strip().split(',')
-        var_lists['vmask'] = f.readline().strip().split(',')
+    var_lists = read_and_categorize(lists_file)
 
     # Loop through all variables in the data dataset
     for var_name in data_ds.data_vars:
@@ -63,7 +98,7 @@ def create_rst_mask(mask_file, data_file, output_file, lists_file):
             mask_label = "v"
         else:
             if len(var_data.dims) > 2:
-                print(f"!!!!!!!!! Tricky variable... {var_name}: we don't know yet its real mask type. As a temporary trick its values will  be replaced by ones where it's initially non-zero and zeroes elsewhere).")
+                print(f"!!!!!!!!! Tricky variable... {var_name}: This variable was not in the list.")
                 # Update the dataset with modified data
                 var_data = xr.where(var_data != 0, 1., 0.)
                 data_ds[var_name] = var_data
