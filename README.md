@@ -35,7 +35,7 @@ Developed by Jean-Michel Brankart, IR CNRS @IGE in Grenoble, France in collabora
 
 This package makes use of:
 
-- the [pyensdam library](github.com/brankart/ensdam),
+- the [pyensdam library](https://github.com/brankart/ensdam/),
 
 - the scipy interpolation tool: scipy.interpolate.
 
