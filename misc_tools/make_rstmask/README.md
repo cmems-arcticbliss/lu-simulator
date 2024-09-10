@@ -29,8 +29,7 @@ In this example, the predefined rules to sort out the variables are based on LB'
 * Variable names 'uVice', 'Uv_sub', 'Vv_sub', and 'v_ice' are added to `varlist_vmask`.
 * Variable names 'vUice', 'Uu_sub', 'Vu_sub', and 'u_ice' are added to `varlist_umask`.
 * Variables starting with 'sx' or 'sy' and not finishing by 't' or 'f' are added to `varlist_tmask`
-* Variables starting with 'sx' or 'sy' are added to `varlist_moments`.
-* All other variables are added to the `varlist_tmask` and `varlist_remain`.
+* All other variables are added to the `varlist_tmask`.
 
 The lists corresponding to t,f,u,v masks are written in the text file. An example of how the output text file looks like is:
 ```
