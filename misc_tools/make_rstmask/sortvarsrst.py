@@ -4,9 +4,42 @@ import xarray as xr
 from pprint import pprint
 import argparse
 
-def sort_variables_rst(file_path, output_file_path, include_all_lists=False):
+def determine_type(var_name):
     """
-    Sorts variables from a NEMO restart file in NetCDF format into different lists based on their names and writes these lists to a text file.
+    Determines whether the variable is a scalar, vector, or tensor in a NEMO restart file (BBM rheology).
+
+    Args:
+        var_name (str): The name of the variable.
+
+    Returns:
+        str: 'vector', 'tensor', or 'scalar'.
+    """
+    # Check for tensor
+    if var_name.startswith('sxx') or var_name.startswith('sxy') or var_name.startswith('syy'):
+        return 'tensor'
+    # Check for tensor based on ending and specific characters
+    if (var_name.endswith('t') or var_name.endswith('f')) and len(var_name) >= 3:
+        if var_name[-3] in {'1', '2'} and var_name[-2] in {'1', '2'}:
+            return 'tensor'
+
+    # Check for vector
+    # List of exceptions for variables starting with 'v'
+    excluded_vector_vars = {'v_i', 'v_ip', 'v_il', 'v_s'}
+    
+    if var_name.lower().startswith('u'):
+        return 'vector'
+    elif var_name.lower().startswith('v') and var_name not in excluded_vector_vars:
+        return 'vector'
+    elif (var_name.startswith('sx') or var_name.startswith('sy')) and not (var_name[2:3] == 'x' or var_name[2:3] == 'y'):
+        return 'vector'    
+
+    # Otherwise, it's a scalar
+    return 'scalar'
+
+
+def sort_variables_rst(file_path, output_file_path, second_output_file_path, include_all_lists=False):
+    """
+    Sorts variables from a NEMO restart file in NetCDF format into different lists based on their names and writes these lists to two text files.
 
     The variables are sorted based on the following criteria:
     - Variables with only one dimension or dimensions (y, x) are added to `varlist_skip`.
@@ -16,11 +49,14 @@ def sort_variables_rst(file_path, output_file_path, include_all_lists=False):
     - Variable names 'uVice', 'Uv_sub', 'Vv_sub', and 'v_ice' are added to `varlist_vmask`.
     - Variable names 'vUice', 'Uu_sub', 'Vu_sub', and 'u_ice' are added to `varlist_umask`.
     - All other variables are added to the `varlist_tmask` and `varlist_remain`.
+    
+    The second text file contains variable name, type (scalar, vector, tensor), and grid (T, U, V, F) for each non-skiped variable.
 
     Args:
         file_path (str): Path to the input NetCDF file.
         output_file_path (str): Path to the output text file where the sorted variable lists will be written.
-        include_all_lists (bool): If True, includes the 'moments', 'skip', and 'remain' lists in the output file. Default is False.
+        second_output_file_path (str): Path to the second output text file for variable name, type, and grid.
+        include_all_lists (bool): If True, includes the 'moments', 'skip', and 'remain' lists in the first output file. Default is False.
     """
     # Load the dataset
     ds = xr.open_dataset(file_path)
@@ -72,16 +108,12 @@ def sort_variables_rst(file_path, output_file_path, include_all_lists=False):
             varlist_remain.append(var_name)
             varlist_tmask.append(var_name)
 
-    # Sort the lists for better readability
-    varlist_tmask.sort()
-    varlist_fmask.sort()
+    # Sort the  u,v lists only
     varlist_umask.sort()
     varlist_vmask.sort()
-    varlist_skip.sort()
-    varlist_remain.sort()
-    varlist_moments.sort()
+   
 
-    # Prepare the output file path
+    # Write to the first output file
     with open(output_file_path, 'w') as f:
         f.write(','.join(varlist_tmask) + '\n')
         f.write(','.join(varlist_fmask) + '\n')
@@ -91,6 +123,21 @@ def sort_variables_rst(file_path, output_file_path, include_all_lists=False):
             f.write(','.join(varlist_moments) + '\n')
             f.write(','.join(varlist_skip) + '\n')
             f.write(','.join(varlist_remain) + '\n')
+
+    # Write to the second output file (excluding skip variables)
+    with open(second_output_file_path, 'w') as f2:
+        for var_name in varlist_tmask:
+            if var_name not in varlist_skip:
+                f2.write(f"{var_name} {determine_type(var_name)} T\n")
+        for var_name in varlist_fmask:
+            if var_name not in varlist_skip:
+                f2.write(f"{var_name} {determine_type(var_name)} F\n")
+        for var_name in varlist_umask:
+            if var_name not in varlist_skip:
+                f2.write(f"{var_name} {determine_type(var_name)} U\n")
+        for var_name in varlist_vmask:
+            if var_name not in varlist_skip:
+                f2.write(f"{var_name} {determine_type(var_name)} V\n")
 
     # Print the lists to the terminal
     print("\nVariables with only 1 dimension or (y, x) (varlist_skip):")
@@ -125,14 +172,14 @@ def sort_variables_rst(file_path, output_file_path, include_all_lists=False):
         print("Warning: The total number of variables does not match the sum of variables in each list.")
 
     print(f"Lists have been written to the text file: {output_file_path} in the current directory.")
+    print(f"Variable grid and type information has been written to: {second_output_file_path}.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Sort variables in a NetCDF file into different lists and write to a text file.")
+    parser = argparse.ArgumentParser(description="Sort variables in a NetCDF file into different lists and write to text files.")
     parser.add_argument('input_file', type=str, help='Path to the input NetCDF file.')
-    parser.add_argument('output_file', type=str, help='Path to the output text file.')
-    parser.add_argument('-alllists', action='store_true', help='Include the "moments", "skip", and "remain" lists in the output file.')
+    parser.add_argument('output_file', type=str, help='Path to the first output text file.')
+    parser.add_argument('second_output_file', type=str, help='Path to the second output text file.')
+    parser.add_argument('-alllists', action='store_true', help='Include the "moments", "skip", and "remain" lists in the first output file.')
     args = parser.parse_args()
 
-    sort_variables_rst(args.input_file, args.output_file, include_all_lists=args.alllists)
-
-
+    sort_variables_rst(args.input_file, args.output_file, args.second_output_file, include_all_lists=args.alllists)
