@@ -20,7 +20,7 @@ Usage:
 cd path/to/restart/file/directory/and/mesh/mask/file
 
 # sort out variables from the restart file according to what we can guess (this will have to be modified when we know for sure!)
-./sortvarsrst.py NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice.nc varlistall_LB.asc
+./sortvarsrst.py NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice.nc vargridinfo.asc
 ```
 
 In this example, the predefined rules to sort out the variables are based on LB's indications. The variables are sorted based on the following criteria:
@@ -32,13 +32,7 @@ In this example, the predefined rules to sort out the variables are based on LB'
 * Variables starting with 'sx' or 'sy' and not finishing by 't' or 'f' are added to `varlist_tmask`
 * All other variables are added to the `varlist_tmask`.
 
-The lists corresponding to t,f,u,v masks are written in the text file. An example of how the output text file looks like is:
-```
-a_i,a_ip,dmgt,e_i_l01,e_i_l02,e_s_l01,e_s_l02,oa_i,sgm11t,sgm12t,sgm22t,snwice_mass,snwice_mass_b,sv_i,sx1mdt,sxa,sxage,sxap,sxc0_l01,sxc0_l02,sxdd1t,sxdd2t,sxdd3t,sxe_l01,sxe_l02,sxice,sxsal,sxsn,sxvl,sxvp,sxx1mdt,sxxa,sxxage,sxxap,sxxc0_l01,sxxc0_l02,sxxdd1t,sxxdd2t,sxxdd3t,sxxe_l01,sxxe_l02,sxxice,sxxsal,sxxsn,sxxvl,sxxvp,sxy1mdt,sxya,sxyage,sxyap,sxyc0_l01,sxyc0_l02,sxydd1t,sxydd2t,sxydd3t,sxye_l01,sxye_l02,sxyice,sxysal,sxysn,sxyvl,sxyvp,sy1mdt,sya,syage,syap,syc0_l01,syc0_l02,sydd1t,sydd2t,sydd3t,sye_l01,sye_l02,syice,sysal,sysn,syvl,syvp,syy1mdt,syya,syyage,syyap,syyc0_l01,syyc0_l02,syydd1t,syydd2t,syydd3t,syye_l01,syye_l02,syyice,syysal,syysn,syyvl,syyvp,t_su,v_i,v_il,v_ip,v_s
-dmgf,sgm11f,sgm12f,sgm22f,sx1mdf,sxdd1f,sxdd2f,sxdd3f,sxx1mdf,sxxdd1f,sxxdd2f,sxxdd3f,sxy1mdf,sxydd1f,sxydd2f,sxydd3f,sy1mdf,sydd1f,sydd2f,sydd3f,syy1mdf,syydd1f,syydd2f,syydd3f
-Uu_sub,Vu_sub,u_ice,vUice
-Uv_sub,Vv_sub,uVice,v_ice                                           
-```
+An output text file is then written containing for each variable its type (scalar,vector,tensor) and its grid type (U,V,T,F) depending on the above criteria.
 This text file is shared in the current directory.
 
 ## 3. Create a masked copy of the restart file
@@ -54,7 +48,7 @@ cd path/to/restart/file/directory/and/mesh/mask/file
 module load climate_science
 
 # copy restart file and repalce variables by their mask with correct dimensions
-./mkrstmask.py mesh_mask_NANUK4_L31_4.2.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice_mask.nc varlistall_LB.asc 
+./mkrstmask.py mesh_mask_NANUK4_L31_4.2.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice_mask.nc vargridinfo.asc 
 ```
 
 Note that the created files has added a  `_Fillvalue` attribute to each variable compared to the original restart files. It  should not interfere with the usage the lu generator makes of the mask file (?).
