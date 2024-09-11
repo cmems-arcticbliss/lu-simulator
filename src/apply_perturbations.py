@@ -213,9 +213,9 @@ if __name__ == "__main__":
         if component == 1 :
           txx_name = variable['name'] ; txx = perturbed_field
         elif component == 2 :
-          txy_name = variable['name'] ; txy = perturbed_field
-        else:
           tyy_name = variable['name'] ; tyy = perturbed_field
+        else:
+          txy_name = variable['name'] ; txy = perturbed_field
           component = 0
           # Rotate tensor once all components have been perturbed
           # (all tensor components are assumed on the same grid)

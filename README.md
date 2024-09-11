@@ -115,7 +115,7 @@ and the third column gives the grid type (T, U, V or F).
 Vectors must come by groups of 2 successive variables,
 and tensors by groups of 3 successive variables.
 For vectors, we must provide the components x and y, and
-for tensors, we must provide the components xx, xy, and yy
+for tensors, we must provide the components xx, yy, and xy
 (in that order, assuming symmetry of the tensor).
 
 ### About the perturbation
