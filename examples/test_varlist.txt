@@ -2,5 +2,5 @@ f scalar T
 u vector T
 v vector T
 txx tensor T
-txy tensor T
 tyy tensor T
+txy tensor T
