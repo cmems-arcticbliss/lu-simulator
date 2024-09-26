@@ -19,6 +19,7 @@ spectrum_type='gaussian'  # Type of power spectrum (available options: 'gaussian
 lmin=0       # minimum degree of the spherical harmonics used in the computations
 lmax=60      # maximum degree of the spherical harmonics used in the computations
 lcut=12      # degree of the spherical harmonics defining the length scale of the perturbation spectrum 
+earth_radius=6370  # earth radius in km
 
 nwnbr=100    # Number of wave numbers in the definition of the spectrum (in cartesian or grid coordinates)
 nharm=100    # Number of harmonic functions to superpose (in cartesian or grid coordinates)
@@ -196,7 +197,8 @@ if __name__ == "__main__":
 
     # Generate new random perturbation
     if args.spherical:
-      lcut = 360. / args.length_scale  ; lmax = 5 * lcut
+      # Convert length scale from km to degree of spherical harmonics
+      lcut = 2 * np.pi * earth_radius  / args.length_scale ; lmax = 5 * lcut
       dx = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
       dy = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
     elif args.cartesian:
