@@ -196,7 +196,7 @@ if __name__ == "__main__":
 
     # Generate new random perturbation
     if args.spherical:
-      lcut = 1 + int( 360. / ( 2 * np.pi * args.length_scale ) ) ; lmax = 5 * lcut
+      lcut = 360. / args.length_scale  ; lmax = 5 * lcut
       dx = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
       dy = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
     elif args.cartesian:
