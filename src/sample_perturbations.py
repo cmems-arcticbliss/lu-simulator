@@ -198,7 +198,7 @@ if __name__ == "__main__":
     # Generate new random perturbation
     if args.spherical:
       # Convert length scale from km to degree of spherical harmonics
-      lcut = 2 * np.pi * earth_radius  / args.length_scale ; lmax = 5 * lcut
+      lcut = 2 * np.pi * earth_radius / args.length_scale ; lmax = 5 * lcut
       dx = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
       dy = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
     elif args.cartesian:
