@@ -49,7 +49,7 @@ def power_spectrum_function(l):
   global spectrum_type
 
   if spectrum_type == 'gaussian' : 
-    power = np.exp( l*l )
+    power = np.exp( - l*l )
   elif spectrum_type == 'k-2' : 
     power = 1. / ( 1. + l*l )
   elif spectrum_type == 'k-4' : 
@@ -142,6 +142,7 @@ def sample_perturbation_grid(grid_shape,length_scale):
 if __name__ == "__main__":
   import argparse
   import netcdf_io as ncio
+  import sys
 
   # Parse command-line arguments
   parser = argparse.ArgumentParser(prog='sample_perturbations',description='Sample perturbations of the coordinates')
@@ -190,6 +191,18 @@ if __name__ == "__main__":
   # Create output file
   ncio.create_perturbation_file(output_file,args.sample_size,multiple_files=use_mpi,vector_size=lon1d.size)
 
+  # Convert length scale from km to degree of spherical harmonics (in spherical case)
+  if args.spherical:
+    lcut = earth_radius / args.length_scale
+    lmax = 5 * int(lcut+1)
+    if mpirank == 0:
+      print('  Typical degree of spherical harmonics used:',lcut)
+      print('  Maximum degree of spherical harmonics used:',lmax)
+      print('  Warning: cost is proportional to the square of lmax')
+      if lmax>500:
+        print('  Stopping for lmax > 500. Change the limit if required.')
+        sys.exit()
+
   # Loop on sample/ensemble size
   for imember in range(args.sample_size):
     if mpirank == 0:
@@ -197,8 +210,6 @@ if __name__ == "__main__":
 
     # Generate new random perturbation
     if args.spherical:
-      # Convert length scale from km to degree of spherical harmonics
-      lcut = 2 * np.pi * earth_radius / args.length_scale ; lmax = 5 * lcut
       dx = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
       dy = sample_perturbation_spherical(lon1d,lat1d,power_spectrum)
     elif args.cartesian:
