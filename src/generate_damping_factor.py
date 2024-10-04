@@ -41,46 +41,92 @@ def compute_damping_factor(mask,mask_spval,length_scale,maxrange=1000,window=5):
 
   return damping_factor
 
+# Function to create the 1-2-1 smoothing kernel
+def get_smoothing_kernel():
+    """Returns a normalized 1-2-1 smoothing kernel."""
+    kernel = np.array([[1, 2, 1],
+                       [2, 4, 2],
+                       [1, 2, 1]]) / 16.0
+    return kernel
+
+# Function to apply the smoothing filter multiple times on a 2D slice
+def apply_smoothing(data, kernel, num_iterations):
+    """Apply smoothing filter num_iterations times on 2D data."""
+    smoothed_data = data
+    for _ in range(num_iterations):
+        smoothed_data = scipy.ndimage.convolve(smoothed_data, kernel)
+    return smoothed_data
+
+# Function to apply smoothing on 2D slices for multi-dimensional arrays
+def smooth_multidimensional(data, kernel, num_iterations):
+    """
+    Applies smoothing on the last two dimensions (y,x) of a 2D or 3D (or higher) array.
+    """
+    if data.ndim == 2:
+        # If the array is 2D, apply smoothing directly
+        return apply_smoothing(data, kernel, num_iterations)
+    else:
+        # If the array is 3D or higher, apply smoothing over the last two dimensions (y,x)
+        smoothed_data = np.empty_like(data)
+        
+        # Iterate over all other dimensions except the last two (y,x)
+        for idx in np.ndindex(data.shape[:-2]):
+            # Select the y,x slice
+            slice_2d = data[idx]
+            smoothed_data[idx] = apply_smoothing(slice_2d, kernel, num_iterations)
+        
+        return smoothed_data
+
 if __name__ == "__main__":
-  import os
-  import shutil
-  import argparse
-  import netcdf_io as ncio
-  import netcdf_format as ncf
-  import vars_def as vdef
+    import os
+    import shutil
+    import argparse
+    import netcdf_io as ncio
+    import netcdf_format as ncf
+    import vars_def as vdef
+    import numpy as np
+    import scipy.ndimage
+    
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(prog='generate_damping_factor', description='Generate damping factor to apply to perturbations')
+    parser.add_argument('-mask', '--mask_file', type=str, required=True, help='name of mask file')
+    parser.add_argument('-v', '--varlist_file', type=str, required=True, help='file with list of variables to perturb')
+    parser.add_argument('-o', '--output_file', type=str, required=True, help='name of output file with damping factor')
+    parser.add_argument('-l', '--length_scale', type=float, required=True, help='width of the buffer zone along the mask')
+    parser.add_argument('-s', '--smoothing_iterations', type=int, default=0, help='Number of smoothing iterations (optional)')
+    args = parser.parse_args()
 
-  # Parse command-line arguments
-  parser = argparse.ArgumentParser(prog='generate_damping_factor',description='Generate damping factor to apply to perturbations')
-  parser.add_argument('-mask', '--mask_file',     type=str,   required=True,  help='name of mask file')
-  parser.add_argument('-v',    '--varlist_file',  type=str,   required=True,  help='file with list of variables to perturb')
-  parser.add_argument('-o',    '--output_file',   type=str,   required=True,  help='name of output file with damping factor')
-  parser.add_argument('-l',    '--length_scale',  type=float, required=True,  help='width of the buffer zone along the mask')
-  args = parser.parse_args()
+    # Get the smoothing kernel (can be reused across variables)
+    kernel = get_smoothing_kernel()
 
-  # Get list of variables from file
-  vdef.read_vars(args.varlist_file)
+    # Get list of variables from file
+    vdef.read_vars(args.varlist_file)
 
-  # Check existence of output file
-  # If not, copy mask file to output file
-  if not os.path.exists(args.output_file):
-    shutil.copy(args.mask_file, args.output_file)
+    # Check existence of output file, if not, copy mask file to output file
+    if not os.path.exists(args.output_file):
+        shutil.copy(args.mask_file, args.output_file)
 
-  # Open output file
-  ncio.open_variable_file(args.output_file)
+    # Open output file
+    ncio.open_variable_file(args.output_file)
 
-  # Loop on variables
-  for ivar, variable in enumerate(vdef.var_list):
-    varname = variable['name']
+    # Loop on variables
+    for ivar, variable in enumerate(vdef.var_list):
+        varname = variable['name']
 
-    # Get mask from mask file
-    mask = ncio.read_variable(args.mask_file,varname)
+        # Get mask from mask file
+        mask = ncio.read_variable(args.mask_file, varname)
 
-    # Compute damping factor
-    damping_factor = compute_damping_factor(mask,ncf.mask_spval,args.length_scale)
+        # Compute damping factor
+        damping_factor = compute_damping_factor(mask, ncf.mask_spval, args.length_scale)
 
-    # Write damping_factor in file
-    ncio.write_variable(damping_factor,varname)
+        # Apply smoothing on damping factor if iterations are specified
+        if args.smoothing_iterations > 0:
+            print(f"Applying {args.smoothing_iterations} smoothing iterations to variable {varname}")
+            damping_factor = smooth_multidimensional(damping_factor, kernel, args.smoothing_iterations)
 
-  # Close output file
-  ncio.close_variable_file()
+        # Write damping_factor in file
+        ncio.write_variable(damping_factor, varname)
+
+    # Close output file
+    ncio.close_variable_file()
 

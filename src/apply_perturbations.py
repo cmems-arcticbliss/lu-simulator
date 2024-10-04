@@ -12,7 +12,8 @@ from scipy.interpolate import RegularGridInterpolator
 import util_transformation
 import util_grid
 
-no_extrapolation=False  # No extrapolation beyond grid limits
+no_extrapolation=False # No extrapolation beyond grid limits
+
 
 def apply_perturbation(reference,dx,dy,grid_type='T'):
   """
@@ -55,26 +56,26 @@ def apply_perturbation(reference,dx,dy,grid_type='T'):
   if ndim == 2 :
     slice2d = reference[:,:]
     if no_extrapolation:
-      interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False)
+      interpolator = RegularGridInterpolator((y,x), slice2d, method=args.interpmethod, bounds_error=False)
     else:
-      interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+      interpolator = RegularGridInterpolator((y,x), slice2d, method=args.interpmethod, bounds_error=False, fill_value=None)
     perturbed = interpolator(points)
   elif ndim == 3 :
     for k in range(reference.shape[0]):
       slice2d = reference[k,:,:]
       if no_extrapolation:
-        interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+        interpolator = RegularGridInterpolator((y,x), slice2d, method=args.interpmethod, bounds_error=False, fill_value=None)
       else:
-        interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+        interpolator = RegularGridInterpolator((y,x), slice2d, method=args.interpmethod, bounds_error=False, fill_value=None)
       perturbed[k,:,:] = interpolator(points)
   elif ndim == 4 :
     for l in range(reference.shape[0]):
       for k in range(reference.shape[1]):
         slice2d = reference[l,k,:,:]
         if no_extrapolation:
-          interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+          interpolator = RegularGridInterpolator((y,x), slice2d, method=args.interpmethod, bounds_error=False, fill_value=None)
         else:
-          interpolator = RegularGridInterpolator((y,x), slice2d, method='linear', bounds_error=False, fill_value=None)
+          interpolator = RegularGridInterpolator((y,x), slice2d, method=args.interpmethod, bounds_error=False, fill_value=None)
         perturbed[l,k,:,:] = interpolator(points)
   else:
     raise ValueError("Bad variable dimension")
@@ -103,6 +104,7 @@ if __name__ == "__main__":
   parser.add_argument('-o',      '--output_file',      type=str,   required=True,  help='name of output file with perturbed fields')
   parser.add_argument('-mask',   '--mask_file',        type=str,   required=False, help='name of mask file')
   parser.add_argument('-factor', '--damping_factor',   type=str,   required=False, help='file with damping factor to apply to perturbations')
+  parser.add_argument('-interp', '--interpmethod',   type=str,   required=False,default='linear', help='interpolation method, linear, nearest')
   parser.add_argument('-N',      '--nproc',            type=int,   required=False, help='number of processors to use with MPI')
   args = parser.parse_args()
 
