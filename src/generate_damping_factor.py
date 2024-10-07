@@ -41,6 +41,11 @@ def compute_damping_factor(mask,mask_spval,length_scale,maxrange=1000,window=5):
 
   return damping_factor
 
+def resetmask(factor,mask,mask_spval):
+    """ Reset factor to 1 on masked values and 0 elsewhere"""
+    factor[np.where(mask==mask_spval)] = 0  # damp on mask
+    return factor
+
 # Function to create the 1-2-1 smoothing kernel
 def get_smoothing_kernel():
     """Returns a normalized 1-2-1 smoothing kernel."""
@@ -123,6 +128,8 @@ if __name__ == "__main__":
         if args.smoothing_iterations > 0:
             print(f"Applying {args.smoothing_iterations} smoothing iterations to variable {varname}")
             damping_factor = smooth_multidimensional(damping_factor, kernel, args.smoothing_iterations)
+            # Reset factor to 1 on masked values
+            damping_factor = resetmask(damping_factor,mask,ncf.mask_spval)
 
         # Write damping_factor in file
         ncio.write_variable(damping_factor, varname)
