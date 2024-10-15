@@ -46,8 +46,8 @@ def sort_variables_rst(file_path, output_file_path, verbose=False):
     - Variables ending with 't' are added to `varlist_tmask`.
     - Variables ending with 'f' are added to `varlist_fmask`.
     - Variables starting with 'sx' or 'sy' and not finishing by 't' or 'f' are added to `varlist_tmask` and to `varlist_moments`.
-    - Variable names 'uVice', 'Uv_sub', 'Vv_sub', and 'v_ice' are added to `varlist_vmask`.
-    - Variable names 'vUice', 'Uu_sub', 'Vu_sub', and 'u_ice' are added to `varlist_umask`.
+    - Variable names 'uVice',  'v_ice' are added to `varlist_vmask`.
+    - Variable names 'vUice',   'u_ice' are added to `varlist_umask`.
     - All other variables are added to the `varlist_tmask` and `varlist_remain`.
     
     Based on these lists, a text file is written,  containaing variable name, type (scalar, vector, tensor), and grid type (T, U, V, F) for each non-skiped variable.
@@ -70,8 +70,8 @@ def sort_variables_rst(file_path, output_file_path, verbose=False):
     varlist_moments = []
 
     # List of specific variable names
-    specific_vmask = ['uVice', 'Uv_sub', 'Vv_sub', 'v_ice']
-    specific_umask = ['vUice', 'Uu_sub', 'Vu_sub', 'u_ice']
+    specific_vmask = ['uVice',  'v_ice']
+    specific_umask = ['vUice',  'u_ice']
 
     # Iterate over each variable in the dataset
     for var_name in ds.data_vars:
