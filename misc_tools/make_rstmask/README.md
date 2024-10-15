@@ -10,8 +10,6 @@ rebuild_nemo -d 2 -x 492 -y 566 NANUK4_ICE_ABL-ABLEVP903_00007080_restart_ice  3
 
 
 ## 2. Read the restart file and sort out variables according to some pre-defined rules
-The goal is to create two output text files:
-* one that will contain four lists of the variables names, depending on their corresponding mask type. The first line has the variable names to which we need to apply the tmask, second line for fmask, third line for umask, fourth line for vmask. 
 
 Usage:
 ```
@@ -25,10 +23,11 @@ cd path/to/restart/file/directory/and/mesh/mask/file
 
 In this example, the predefined rules to sort out the variables are based on LB's indications. The variables are sorted based on the following criteria:
 * Variables with dimensions strictly smaller than 3 are added to `varlist_skip`.
+* Variables 'Uv_sub', 'Vv_sub’, 'Uu_sub', 'Vu_sub' are added to `varlist_skip` .
 * Variables ending with 't' are added to `varlist_tmask`.
 * Variables ending with 'f' are added to `varlist_fmask`.
-* Variable names 'uVice', 'Uv_sub', 'Vv_sub', and 'v_ice' are added to `varlist_vmask`.
-* Variable names 'vUice', 'Uu_sub', 'Vu_sub', and 'u_ice' are added to `varlist_umask`.
+* Variable names 'uVice', 'v_ice' are added to `varlist_vmask`.
+* Variable names 'vUice', 'u_ice' are added to `varlist_umask`.
 * Variables starting with 'sx' or 'sy' and not finishing by 't' or 'f' are added to `varlist_tmask`
 * All other variables are added to the `varlist_tmask`.
 
@@ -36,8 +35,8 @@ An output text file is then written containing for each variable its type (scala
 This text file is shared in the current directory.
 
 ## 3. Create a masked copy of the restart file
-Create a copy of the restart file  where each variable will be replaced by its mask according to the text file as an argument that lists the variables for each mask type.
-
+Create a copy of the restart file  where each variable will be replaced by its mask. The corresponding mask   is  read from a separate NetCDF file, and the corresponding mask type for each variable is determined based on information  read from a text file that can be prepared manually or using the `sortvarsrst.py` script.
+If some variables from the restart file are not listed in the text file and if dimension larger than 2, the values are replaced by ones where the variable is not zero and by zeroes elsewhere (i.e. poor man's mask).
 Usage:
 ```
 # load python with xarray (on jean jay: module load climate_science)
@@ -52,3 +51,5 @@ module load climate_science
 ```
 
 Note that the created files has added a  `_Fillvalue` attribute to each variable compared to the original restart files. It  should not interfere with the usage the lu generator makes of the mask file (?).
+
+In the end, if you aim to use the text file as input for the lu simultor, you must check that each vector components appear as vx then vy on the next line. You must also check tensor components order: xx, yy, xy. If you have not applied the official mask for given variables (e.g. 'Uv_sub', 'Vv_sub’, 'Uu_sub', 'Vu_sub') but still want to perturbed them with the lu generator, you need to add them in the list.
