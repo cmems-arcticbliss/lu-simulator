@@ -46,8 +46,8 @@ def sort_variables_rst(file_path, output_file_path, verbose=False):
     - Variables ending with 't' are added to `varlist_tmask`.
     - Variables ending with 'f' are added to `varlist_fmask`.
     - Variables starting with 'sx' or 'sy' and not finishing by 't' or 'f' are added to `varlist_tmask` and to `varlist_moments`.
-    - Variable names 'uVice',  'v_ice' are added to `varlist_vmask`.
-    - Variable names 'vUice',   'u_ice' are added to `varlist_umask`.
+    - Variable names 'uVice', 'v_ice' are added to `varlist_vmask`.
+    - Variable names 'vUice', 'u_ice' are added to `varlist_umask`.
     - All other variables are added to the `varlist_tmask` and `varlist_remain`.
     
     Based on these lists, a text file is written,  containaing variable name, type (scalar, vector, tensor), and grid type (T, U, V, F) for each non-skiped variable.
