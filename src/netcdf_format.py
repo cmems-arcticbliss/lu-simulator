@@ -21,3 +21,9 @@ theta='theta'
 
 # Type of staggered grid (upright or downleft)
 stag_type='upright'
+
+
+# name of grid cell size in x direction in grid/mesh file
+gridxname='e1t'
+gridyname='e2t'
+cfactor=1e-3   # conversion factor from initial unit as given in input grid file and desired unit in damping file  (example: 1e-3 will convert from meters (grid cell size as given in grid file) to kilometers as we want to have the multiplicative factor in the damping file

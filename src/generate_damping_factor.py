@@ -99,6 +99,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_file', type=str, required=True, help='name of output file with damping factor')
     parser.add_argument('-l', '--length_scale', type=float, required=True, help='width of the buffer zone along the mask')
     parser.add_argument('-s', '--smoothing_iterations', type=int, default=0, help='Number of smoothing iterations (optional)')
+    parser.add_argument('-kmscaling', '--kmscaling', type=str,required=False,  help='Mesh file to get the size of the grid cells if scaling in km is required (optional)')
     args = parser.parse_args()
 
     # Get the smoothing kernel (can be reused across variables)
@@ -113,6 +114,14 @@ if __name__ == "__main__":
 
     # Open output file
     ncio.open_variable_file(args.output_file)
+
+    # Read gridcell size from mesh file if required
+    if args.kmscaling is not None:
+        gridx = ncio.read_variable(args.kmscaling, ncf.gridxname)
+        gridy = ncio.read_variable(args.kmscaling, ncf.gridyname)
+        gridsize = np.sqrt(0.5*gridx**2 + 0.5*gridy**2)   # in meters
+        gridsize = np.squeeze(gridsize*ncf.cfactor)   # unit conversion factor if needed
+        print(gridsize.shape)
 
     # Loop on variables
     for ivar, variable in enumerate(vdef.var_list):
@@ -130,6 +139,9 @@ if __name__ == "__main__":
             damping_factor = smooth_multidimensional(damping_factor, kernel, args.smoothing_iterations)
             # Reset factor to 1 on masked values
             damping_factor = resetmask(damping_factor,mask,ncf.mask_spval)
+
+        if args.kmscaling is not None:
+            damping_factor = damping_factor / gridsize   # should handle different shapes of damping_factor automatically (?)
 
         # Write damping_factor in file
         ncio.write_variable(damping_factor, varname)
