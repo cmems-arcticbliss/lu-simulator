@@ -36,13 +36,12 @@ git clone https://github.com/cmems-arcticbliss/lu-simulator.git
 
 ### 3. Utiliser le script ci dessous:
 
+* Go to subdirectory: `lu-simulator/misc_tools/make_dist2coastmk`
 ```
-cd examples
+cd lu-simulator/misc_tools/make_dist2coastmk
 
-vi monscript.sh
+vi mkmask.sh
 ```
-
-* `lgrid` is the number of grid point to set according to what you want.
   
 ```bash
 #!/bin/bash
@@ -59,3 +58,7 @@ suffix='pourLaurine'
 python ../src/generate_damping_factor.py -l ${lgrid} -v ${vargridinfo} -mask ${mask} -s ${sm}  -o ${prefix_ofile}_lgrid${lgrid}_sm${sm}_${suffix}.nc
         
 ```
+
+* `lgrid` is the number of grid point to set according to what you want.
+
+* to run: `./mkmask.sh`
