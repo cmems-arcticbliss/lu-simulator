@@ -1,4 +1,6 @@
-Goal: my notes to explain how to install the lu-simulator on Jean Zay@IDRIS (and also the required ensdam package) and how to use the script `/src/generate_damping_factor.py`
+_Last update:_ 2024-12-11
+
+__Goal:__ my notes to explain how to install the lu-simulator on Jean Zay@IDRIS (and also the required ensdam package) and how to use the script `/src/generate_damping_factor.py`
  to define a mask at xxx distance (in grid points) from the coast. Note that this is not the primary goal of this script (initial goal is to compute a damping coefficient from 0 over land to 1 over ocean-sea-ice with a decreasing coefficient from 0 to 1 until xx distance from thecoast (in grid points).
 
 ### 1. Installer ensdam:
