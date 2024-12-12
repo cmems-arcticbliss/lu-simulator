@@ -119,9 +119,9 @@ if __name__ == "__main__":
     if args.kmscaling is not None:
         gridx = ncio.read_variable(args.kmscaling, ncf.gridxname)
         gridy = ncio.read_variable(args.kmscaling, ncf.gridyname)
-        gridsize = np.sqrt(0.5*gridx**2 + 0.5*gridy**2)   # in meters
+        gridsize = 0.5*gridx + 0.5*gridy   # average grid size in meters
         gridsize = np.squeeze(gridsize*ncf.cfactor)   # unit conversion factor if needed
-        print(gridsize.shape)
+        #print(gridsize.shape)
 
     # Loop on variables
     for ivar, variable in enumerate(vdef.var_list):
