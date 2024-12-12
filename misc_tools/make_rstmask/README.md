@@ -47,7 +47,7 @@ cd path/to/restart/file/directory/and/mesh/mask/file
 module load climate_science
 
 # copy restart file and repalce variables by their mask with correct dimensions
-./mkrstmask.py mesh_mask_NANUK4_L31_4.2.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice.nc NANUK4_ICE_ABL-ABLBBM903_00007080_restart_ice_mask.nc vargridinfo.asc 
+./mkrstmask.py mesh_mask_NANUK4_L31_4.2.nc reference.nc reference_mask.nc vargridinfo.asc 
 ```
 
 Note that the created files has added a  `_Fillvalue` attribute to each variable compared to the original restart files. It  should not interfere with the usage the lu generator makes of the mask file (?).
