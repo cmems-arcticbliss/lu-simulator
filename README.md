@@ -219,7 +219,7 @@ generate_damping_factor.py
 
 where `damping_length_scale` is the typical size of the buffer zone along the mask.
 The resulting damping factor approximately follows the formula:
-$d = 1 - \exp( -x^2 / l^2 )$, where distances are expressed
+$\mbox{factor} = 1 - \exp( -x^2 / l^2 )$, where the distances x and l are expressed
 in number of grid points from the coast line.
 
 Then the damping factor must be used as an additional (optional) argument
