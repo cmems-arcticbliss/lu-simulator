@@ -25,6 +25,8 @@ module load netcdf-fortran/4.5.2-mpi
 module unload python
 module load climate_science
 
+pip install cython
+
 chmod u+x compile.bash
 ./compile.bash
 # note on Jean Zay, once fortran, cmake, etc are installed via their modules, no need to specify their path in the above script, the machine "knows" where to find them. Might not be the case on other machines.
