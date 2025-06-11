@@ -14,14 +14,11 @@ __Goal:__ my notes to explain how to install the lu-simulator on Jean Zay@IDRIS 
 git clone https://github.com/brankart/ensdam.git
 
 # install modules to get at minimum fortran, cmake and python with cython
+#
 module purge
-module load gcc/9.1.0
-module load cmake
-module load intel-all
-module load gcc/9.1.0
-module load hdf5/1.10.5-mpi
-module load netcdf/4.7.2-mpi
-module load netcdf-fortran/4.5.2-mpi
+module load intel-compilers
+module load cmake/3.25.2
+module load gcc/8.5.0
 module unload python
 module load climate_science
 
