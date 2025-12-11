@@ -1,5 +1,7 @@
 # lu-simulator : location uncertainty simulator
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17896830.svg)](https://doi.org/10.5281/zenodo.17896830)
+
 A tool to simulate horizontal location uncertainty in 2D or 3D geophysical fields.
 
 This is done by a random perturbation of the horizontal grid,
