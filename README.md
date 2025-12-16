@@ -4,12 +4,11 @@
 
 A tool to simulate horizontal location uncertainty in 2D or 3D geophysical fields.
 
-This is done by a random perturbation of the horizontal grid,
-with re-interpolation on the original grid.
+This is done by a random displacement perturbations applied to the geophysical field, then re-interpolated on the original grid.
 
 The code is developed in the framework of the [Arctic-BLISS project](https://github.com/cmems-arcticbliss)
 to study the sensitivity of sea-ice prediction systems to small perturbations
-of the initial condition (predictability experiment).
+of the initial condition (predictability experiment). 
 
 Further possible applications include:
 
